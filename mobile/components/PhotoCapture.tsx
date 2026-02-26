@@ -6,20 +6,68 @@ import {
   Image,
   StyleSheet,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import * as ImageManipulator from 'expo-image-manipulator';
+
+// Web-compatible file picker fallback
+function WebFilePicker({ onPhotoTaken, label }: { onPhotoTaken: (base64: string, uri: string) => void; label?: string }) {
+  const [preview, setPreview] = useState<string | null>(null);
+
+  const handleFilePick = () => {
+    if (Platform.OS !== 'web') return;
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    input.onchange = (e: any) => {
+      const file = e.target?.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        const base64 = result.split(',')[1] || '';
+        const uri = URL.createObjectURL(file);
+        setPreview(uri);
+        onPhotoTaken(base64, uri);
+      };
+      reader.readAsDataURL(file);
+    };
+    input.click();
+  };
+
+  return (
+    <View style={styles.center}>
+      {label && <Text style={styles.label}>{label}</Text>}
+      {preview && <Image source={{ uri: preview }} style={{ width: 200, height: 200, borderRadius: 8, marginBottom: 16 }} />}
+      <TouchableOpacity style={styles.permButton} onPress={handleFilePick}>
+        <Text style={styles.permButtonText}>📷 {preview ? 'Changer la photo' : 'Choisir une photo'}</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// Native camera imports (lazy loaded)
+let CameraView: any = null;
+let useCameraPermissions: any = null;
+let ImageManipulator: any = null;
+
+if (Platform.OS !== 'web') {
+  const cam = require('expo-camera');
+  CameraView = cam.CameraView;
+  useCameraPermissions = cam.useCameraPermissions;
+  ImageManipulator = require('expo-image-manipulator');
+}
 
 interface PhotoCaptureProps {
   onPhotoTaken: (base64: string, uri: string) => void;
   label?: string;
 }
 
-export default function PhotoCapture({ onPhotoTaken, label }: PhotoCaptureProps) {
+function NativePhotoCapture({ onPhotoTaken, label }: PhotoCaptureProps) {
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState<{ uri: string; base64: string } | null>(null);
   const [loading, setLoading] = useState(false);
-  const cameraRef = useRef<CameraView>(null);
+  const cameraRef = useRef<any>(null);
 
   if (!permission) {
     return (
@@ -54,7 +102,6 @@ export default function PhotoCapture({ onPhotoTaken, label }: PhotoCaptureProps)
 
       if (!result) return;
 
-      // Resize for OCR
       const manipulated = await ImageManipulator.manipulateAsync(
         result.uri,
         [{ resize: { width: 1200 } }],
@@ -121,6 +168,13 @@ export default function PhotoCapture({ onPhotoTaken, label }: PhotoCaptureProps)
       </TouchableOpacity>
     </View>
   );
+}
+
+export default function PhotoCapture(props: PhotoCaptureProps) {
+  if (Platform.OS === 'web') {
+    return <WebFilePicker {...props} />;
+  }
+  return <NativePhotoCapture {...props} />;
 }
 
 const styles = StyleSheet.create({

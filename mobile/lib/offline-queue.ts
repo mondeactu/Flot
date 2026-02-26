@@ -1,13 +1,25 @@
-import * as SQLite from 'expo-sqlite';
-import * as FileSystem from 'expo-file-system';
-import NetInfo from '@react-native-community/netinfo';
+import { Platform } from 'react-native';
 import { supabase } from './supabase';
+
+// Only import native modules on non-web platforms
+let SQLite: typeof import('expo-sqlite') | null = null;
+let FileSystem: typeof import('expo-file-system') | null = null;
+let NetInfo: typeof import('@react-native-community/netinfo').default | null = null;
+
+if (Platform.OS !== 'web') {
+  SQLite = require('expo-sqlite');
+  FileSystem = require('expo-file-system');
+  NetInfo = require('@react-native-community/netinfo').default;
+}
 
 const DB_NAME = 'flot_offline.db';
 
-let db: SQLite.SQLiteDatabase | null = null;
+let db: any = null;
 
-async function getDb(): Promise<SQLite.SQLiteDatabase> {
+async function getDb(): Promise<any> {
+  if (Platform.OS === 'web' || !SQLite) {
+    throw new Error('SQLite not available on web');
+  }
   if (!db) {
     db = await SQLite.openDatabaseAsync(DB_NAME);
     await db.execAsync(`
@@ -42,6 +54,13 @@ export async function addToQueue(
   storageBucket?: string,
   storagePath?: string
 ): Promise<void> {
+  if (Platform.OS === 'web') {
+    // On web, submit directly to Supabase
+    const tableName = type === 'fuel_fill' ? 'fuel_fills' : type === 'cleaning' ? 'cleanings' : 'incidents';
+    const { error } = await supabase.from(tableName).insert(payload);
+    if (error) throw error;
+    return;
+  }
   const database = await getDb();
   await database.runAsync(
     'INSERT INTO offline_queue (type, payload, local_photo_uri, storage_bucket, storage_path) VALUES (?, ?, ?, ?, ?)',
@@ -56,6 +75,7 @@ export async function addToQueue(
 }
 
 export async function getQueueCount(): Promise<number> {
+  if (Platform.OS === 'web') return 0;
   const database = await getDb();
   const result = await database.getFirstAsync<{ count: number }>(
     'SELECT COUNT(*) as count FROM offline_queue'
@@ -64,6 +84,7 @@ export async function getQueueCount(): Promise<number> {
 }
 
 export async function getQueueItems(): Promise<QueueItem[]> {
+  if (Platform.OS === 'web') return [];
   const database = await getDb();
   const rows = await database.getAllAsync<QueueItem>(
     'SELECT * FROM offline_queue ORDER BY created_at ASC'
@@ -76,6 +97,9 @@ async function uploadPhoto(
   bucket: string,
   path: string
 ): Promise<string> {
+  if (Platform.OS === 'web' || !FileSystem) {
+    throw new Error('FileSystem not available on web');
+  }
   const fileInfo = await FileSystem.getInfoAsync(localUri);
   if (!fileInfo.exists) {
     throw new Error(`Fichier local introuvable : ${localUri}`);
@@ -96,7 +120,6 @@ async function uploadPhoto(
 
   if (error) throw error;
 
-  // Delete local file after successful upload
   await FileSystem.deleteAsync(localUri, { idempotent: true });
 
   return path;
@@ -105,7 +128,6 @@ async function uploadPhoto(
 async function processItem(item: QueueItem): Promise<void> {
   const payload = JSON.parse(item.payload);
 
-  // Upload photo if exists
   if (item.local_photo_uri && item.storage_bucket && item.storage_path) {
     const storagePath = await uploadPhoto(
       item.local_photo_uri,
@@ -113,11 +135,9 @@ async function processItem(item: QueueItem): Promise<void> {
       item.storage_path
     );
 
-    // Update payload with storage URL
     if (item.type === 'fuel_fill') {
       payload.receipt_photo_url = storagePath;
     } else if (item.type === 'cleaning') {
-      // Cleaning can have multiple photo fields; the path prefix tells us which one
       if (item.storage_path.includes('receipt')) {
         payload.receipt_photo_url = storagePath;
       }
@@ -126,7 +146,6 @@ async function processItem(item: QueueItem): Promise<void> {
     }
   }
 
-  // Submit record to Supabase
   const tableName =
     item.type === 'fuel_fill'
       ? 'fuel_fills'
@@ -137,12 +156,12 @@ async function processItem(item: QueueItem): Promise<void> {
   const { error } = await supabase.from(tableName).insert(payload);
   if (error) throw error;
 
-  // Remove from queue
   const database = await getDb();
   await database.runAsync('DELETE FROM offline_queue WHERE id = ?', [item.id]);
 }
 
 export async function processQueue(): Promise<number> {
+  if (Platform.OS === 'web' || !NetInfo) return 0;
   const netState = await NetInfo.fetch();
   if (!netState.isConnected) return 0;
 
@@ -155,19 +174,19 @@ export async function processQueue(): Promise<number> {
       processed++;
     } catch (err) {
       console.error(`Erreur lors du traitement de l'élément ${item.id} :`, err);
-      break; // Stop processing on first error to maintain order
+      break;
     }
   }
 
   return processed;
 }
 
-// NetInfo listener to auto-process queue when reconnecting
 let unsubscribeNetInfo: (() => void) | null = null;
 
 export function startQueueListener(
   onSynced?: (count: number) => void
 ): void {
+  if (Platform.OS === 'web' || !NetInfo) return;
   if (unsubscribeNetInfo) return;
 
   unsubscribeNetInfo = NetInfo.addEventListener(async (state) => {
@@ -191,6 +210,9 @@ export async function savePhotoLocally(
   uri: string,
   filename: string
 ): Promise<string> {
+  if (Platform.OS === 'web' || !FileSystem) {
+    return uri; // On web, just return the original URI
+  }
   const dir = `${FileSystem.documentDirectory}flot_offline_photos/`;
   await FileSystem.makeDirectoryAsync(dir, { intermediates: true });
   const destUri = `${dir}${filename}`;

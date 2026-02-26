@@ -1,0 +1,8 @@
+[build]
+  command = "echo 'Pre-built'"
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
