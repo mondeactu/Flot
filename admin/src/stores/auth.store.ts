@@ -113,12 +113,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   checkAdminExists: async () => {
     try {
-      const { count } = await supabase
-        .from('profiles')
-        .select('id', { count: 'exact', head: true })
-        .eq('role', 'admin');
+      const { data: exists } = await supabase.rpc('admin_exists');
 
-      const exists = (count ?? 0) > 0;
       set({ adminExists: exists });
       return exists;
     } catch {

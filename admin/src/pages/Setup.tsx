@@ -13,12 +13,9 @@ export default function Setup() {
 
   useEffect(() => {
     const check = async () => {
-      const { count } = await supabase
-        .from('profiles')
-        .select('id', { count: 'exact', head: true })
-        .eq('role', 'admin');
+      const { data: exists } = await supabase.rpc('admin_exists');
 
-      if ((count ?? 0) > 0) {
+      if (exists) {
         navigate('/login', { replace: true });
       }
       setChecking(false);
