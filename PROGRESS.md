@@ -1,4 +1,4 @@
 # Flot — Progress Tracker
-Last completed file: 0/67
-Last file: none
-Status: in progress
+Last completed file: 67/67
+Last file: README.md
+Status: complete
