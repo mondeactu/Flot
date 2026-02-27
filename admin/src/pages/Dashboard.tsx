@@ -148,7 +148,7 @@ export default function Dashboard() {
       )}
 
       {showReport && report && (
-        <MonthlyReportModal report={report as { period: string; data: Record<string, unknown> }} onClose={() => setShowReport(false)} />
+        <MonthlyReportModal report={report as any} onClose={() => setShowReport(false)} />
       )}
     </div>
   );

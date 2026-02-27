@@ -2,6 +2,9 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/auth.store';
 import NotificationBell from './NotificationBell';
+import RealtimeNotifications from './RealtimeNotifications';
+import ToastContainer from './Toast';
+import PWAInstallPrompt from './PWAInstallPrompt';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Tableau de bord', icon: '🏠' },
@@ -69,6 +72,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {/* Page content */}
         <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
       </div>
+
+      {/* Realtime notifications */}
+      <RealtimeNotifications />
+      <ToastContainer />
+      <PWAInstallPrompt />
 
       {/* Bottom tab bar — mobile */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2 z-50">

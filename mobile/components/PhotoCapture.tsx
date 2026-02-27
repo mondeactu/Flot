@@ -118,7 +118,7 @@ function NativePhotoCapture({ onPhotoTaken, label }: PhotoCaptureProps) {
 
   const retake = () => setPhoto(null);
 
-  const confirm = () => {
+  const confirmClear = () => {
     if (photo) {
       onPhotoTaken(photo.base64, photo.uri);
     }
@@ -128,20 +128,21 @@ function NativePhotoCapture({ onPhotoTaken, label }: PhotoCaptureProps) {
     return (
       <View style={styles.previewContainer}>
         <Image source={{ uri: photo.uri }} style={styles.preview} />
+        <Text style={styles.clarityQuestion}>La photo est-elle suffisamment claire ?</Text>
         <View style={styles.previewButtons}>
           <TouchableOpacity
             style={[styles.button, styles.retakeButton]}
             onPress={retake}
-            accessibilityLabel="Recommencer la photo"
+            accessibilityLabel="Non, reprendre la photo"
           >
-            <Text style={styles.retakeText}>Recommencer</Text>
+            <Text style={styles.retakeText}>Non, reprendre</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.button, styles.confirmButton]}
-            onPress={confirm}
-            accessibilityLabel="Utiliser cette photo"
+            onPress={confirmClear}
+            accessibilityLabel="Oui, valider la photo"
           >
-            <Text style={styles.confirmText}>Utiliser cette photo</Text>
+            <Text style={styles.confirmText}>Oui, valider</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -238,6 +239,14 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: 'contain',
   },
+  clarityQuestion: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+    textAlign: 'center',
+    paddingVertical: 10,
+    backgroundColor: '#FFF8E1',
+  },
   previewButtons: {
     flexDirection: 'row',
   },
@@ -247,7 +256,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   retakeButton: {
-    backgroundColor: '#757575',
+    backgroundColor: '#D32F2F',
   },
   retakeText: {
     color: '#fff',

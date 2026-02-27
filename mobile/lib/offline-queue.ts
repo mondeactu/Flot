@@ -3,12 +3,12 @@ import { supabase } from './supabase';
 
 // Only import native modules on non-web platforms
 let SQLite: typeof import('expo-sqlite') | null = null;
-let FileSystem: typeof import('expo-file-system') | null = null;
+let FileSystem: typeof import('expo-file-system/legacy') | null = null;
 let NetInfo: typeof import('@react-native-community/netinfo').default | null = null;
 
 if (Platform.OS !== 'web') {
   SQLite = require('expo-sqlite');
-  FileSystem = require('expo-file-system');
+  FileSystem = require('expo-file-system/legacy');
   NetInfo = require('@react-native-community/netinfo').default;
 }
 

@@ -10,22 +10,39 @@
       "backgroundColor": "#2E7D32",
       "resizeMode": "contain"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.saveursetvie.flot"
     },
     "android": {
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#2E7D32"
       },
-      "package": "com.saveursetvie.flot"
+      "package": "com.saveursetvie.flot",
+      "permissions": [
+        "CAMERA",
+        "ACCESS_NETWORK_STATE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "WAKE_LOCK"
+      ]
     },
     "plugins": [
       "expo-router",
-      "expo-camera",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "L'application Flot a besoin d'acceder a votre camera pour photographier les tickets et vehicules."
+        }
+      ],
       "expo-notifications",
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-asset",
+      "expo-font"
     ],
     "scheme": "flot",
     "extra": {

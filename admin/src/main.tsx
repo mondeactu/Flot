@@ -13,6 +13,15 @@ import Exports from './pages/Exports';
 import Settings from './pages/Settings';
 import './index.css';
 
+// Register service worker for PWA
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.error('SW registration failed:', err);
+    });
+  });
+}
+
 function LoginPage() {
   const { login, loading, error, clearError } = useAuthStore();
   const [email, setEmail] = useState('');

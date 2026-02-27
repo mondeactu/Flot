@@ -25,6 +25,7 @@ interface AuthState {
 
   initialize: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  loginByPlate: (plate: string) => Promise<void>;
   logout: () => Promise<void>;
   fetchProfile: (userId: string) => Promise<void>;
   fetchDriverVehicle: (driverId: string) => Promise<void>;
@@ -84,6 +85,52 @@ export const useAuthStore = create<AuthState>((set, get) => ({
               ? 'Veuillez confirmer votre email'
               : `Erreur de connexion : ${error.message}`;
         throw new Error(message);
+      }
+
+      if (data.session && data.user) {
+        set({ session: data.session, user: data.user });
+        await get().fetchProfile(data.user.id);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erreur de connexion';
+      set({ error: message });
+      throw err;
+    } finally {
+      set({ loading: false });
+    }
+  },
+
+  loginByPlate: async (plate: string) => {
+    try {
+      set({ loading: true, error: null });
+
+      // Call RPC to get driver email from plate number
+      const { data: rpcResult, error: rpcError } = await supabase
+        .rpc('login_by_plate', { plate_number: plate.toUpperCase().trim() });
+
+      if (rpcError) {
+        throw new Error('Erreur de connexion par plaque');
+      }
+
+      if (rpcResult?.error) {
+        throw new Error(rpcResult.error);
+      }
+
+      if (!rpcResult?.email) {
+        throw new Error('Plaque non trouvée ou aucun conducteur assigné');
+      }
+
+      // Sign in with the driver's email and plate as password
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: rpcResult.email,
+        password: plate.toUpperCase().trim(),
+      });
+
+      if (error) {
+        if (error.message === 'Invalid login credentials') {
+          throw new Error('Plaque non reconnue. Vérifiez le format XX-XXX-XX');
+        }
+        throw new Error(`Erreur de connexion : ${error.message}`);
       }
 
       if (data.session && data.user) {

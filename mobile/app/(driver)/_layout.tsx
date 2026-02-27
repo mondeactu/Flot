@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { Tabs } from 'expo-router';
-import { View, Text, StyleSheet } from 'react-native';
+import { Tabs, useRouter } from 'expo-router';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useAuthStore } from '../../stores/auth.store';
 import AlertBanner from '../../components/AlertBanner';
 import OfflineBadge from '../../components/OfflineBadge';
@@ -8,8 +8,14 @@ import { startQueueListener, stopQueueListener } from '../../lib/offline-queue';
 import { registerForPushNotifications } from '../../lib/notifications';
 
 function DriverHeader() {
-  const { profile, vehicle } = useAuthStore();
+  const { profile, vehicle, logout } = useAuthStore();
+  const router = useRouter();
   const firstName = profile?.full_name?.split(' ')[0] ?? 'Conducteur';
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/(auth)/login');
+  };
 
   return (
     <View style={styles.header}>
@@ -21,6 +27,9 @@ function DriverHeader() {
           </View>
         )}
         <OfflineBadge />
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn} accessibilityLabel="Se déconnecter">
+          <Text style={styles.logoutText}>Quitter</Text>
+        </TouchableOpacity>
       </View>
       <AlertBanner />
     </View>
@@ -36,7 +45,6 @@ export default function DriverLayout() {
     }
 
     startQueueListener((count) => {
-      // Toast handled at app level
       console.log(`${count} saisie(s) synchronisée(s)`);
     });
 
@@ -58,9 +66,9 @@ export default function DriverLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Essence',
+            title: 'Carburant',
             tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>⛽</Text>,
-            tabBarAccessibilityLabel: 'Onglet Essence',
+            tabBarAccessibilityLabel: 'Onglet Carburant',
           }}
         />
         <Tabs.Screen
@@ -117,10 +125,24 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#2E7D32',
+    marginRight: 8,
   },
   plateText: {
     fontSize: 13,
     fontWeight: '700',
     color: '#2E7D32',
+  },
+  logoutBtn: {
+    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  logoutText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#D32F2F',
   },
 });

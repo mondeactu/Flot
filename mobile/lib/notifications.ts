@@ -101,6 +101,6 @@ export async function sendLocalNotification(title: string, body: string) {
       body,
       sound: 'default',
     },
-    trigger: null,
+    trigger: { type: 'timeInterval' as const, seconds: 1 },
   });
 }

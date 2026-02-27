@@ -6,14 +6,14 @@ export interface OCRResult {
   priceTTC: number | null;
   liters: number | null;
   km: number | null;
-  stationName: string | null;
+  fuelType: string | null;
   rawText: string;
   confidence: {
     priceHT: boolean;
     priceTTC: boolean;
     liters: boolean;
     km: boolean;
-    stationName: boolean;
+    fuelType: boolean;
   };
 }
 
@@ -50,6 +50,22 @@ function findNearbyValue(
   return { value: null, confident: false };
 }
 
+function detectFuelType(fullText: string): { value: string | null; confident: boolean } {
+  const lower = fullText.toLowerCase();
+
+  const dieselKeywords = ['diesel', 'gazole', 'gasoil', 'gas-oil', 'gnr', 'b7', 'xtl'];
+  const essenceKeywords = ['essence', 'sp95', 'sp98', 'sp 95', 'sp 98', 'e10', 'e85', 'sans plomb', 'super', 'e5'];
+
+  const hasDiesel = dieselKeywords.some((kw) => lower.includes(kw));
+  const hasEssence = essenceKeywords.some((kw) => lower.includes(kw));
+
+  if (hasDiesel && !hasEssence) return { value: 'diesel', confident: true };
+  if (hasEssence && !hasDiesel) return { value: 'essence', confident: true };
+  if (hasDiesel && hasEssence) return { value: 'diesel', confident: false };
+
+  return { value: null, confident: false };
+}
+
 export async function recognizeReceipt(base64Image: string): Promise<OCRResult> {
   const body = {
     requests: [
@@ -80,30 +96,22 @@ export async function recognizeReceipt(base64Image: string): Promise<OCRResult> 
       priceTTC: null,
       liters: null,
       km: null,
-      stationName: null,
+      fuelType: null,
       rawText: '',
       confidence: {
         priceHT: false,
         priceTTC: false,
         liters: false,
         km: false,
-        stationName: false,
+        fuelType: false,
       },
     };
   }
 
   const fullText = annotations[0].description || '';
 
-  // Extract station name (first line / business name)
-  const firstLines = fullText.split('\n').slice(0, 3);
-  const stationName =
-    firstLines.find(
-      (l: string) =>
-        l.length > 3 &&
-        !l.match(/^\d/) &&
-        !l.toLowerCase().includes('ticket') &&
-        !l.toLowerCase().includes('reçu')
-    ) || null;
+  // Detect fuel type from OCR text
+  const fuelTypeResult = detectFuelType(fullText);
 
   // HT price
   const htResult = findNearbyValue(
@@ -138,14 +146,14 @@ export async function recognizeReceipt(base64Image: string): Promise<OCRResult> 
     priceTTC: ttcResult.value,
     liters: litersResult.value,
     km: kmResult.value,
-    stationName,
+    fuelType: fuelTypeResult.value,
     rawText: fullText,
     confidence: {
       priceHT: htResult.confident,
       priceTTC: ttcResult.confident,
       liters: litersResult.confident,
       km: kmResult.confident,
-      stationName: !!stationName,
+      fuelType: fuelTypeResult.confident,
     },
   };
 }
