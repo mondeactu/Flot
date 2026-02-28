@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Tabs, useRouter } from 'expo-router';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { useAuthStore } from '../../stores/auth.store';
 import AlertBanner from '../../components/AlertBanner';
 import OfflineBadge from '../../components/OfflineBadge';
@@ -20,16 +21,23 @@ function DriverHeader() {
   return (
     <View style={styles.header}>
       <View style={styles.headerRow}>
-        <Text style={styles.greeting}>Bonjour {firstName}</Text>
-        {vehicle && (
-          <View style={styles.plateBadge}>
-            <Text style={styles.plateText}>{vehicle.plate}</Text>
+        <View style={styles.headerLeft}>
+          <View style={styles.logoIcon}>
+            <Feather name="truck" size={14} color="#fff" />
           </View>
-        )}
-        <OfflineBadge />
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn} accessibilityLabel="Se déconnecter">
-          <Text style={styles.logoutText}>Quitter</Text>
-        </TouchableOpacity>
+          <Text style={styles.greeting}>{firstName}</Text>
+        </View>
+        <View style={styles.headerRight}>
+          {vehicle && (
+            <View style={styles.plateBadge}>
+              <Text style={styles.plateText}>{vehicle.plate}</Text>
+            </View>
+          )}
+          <OfflineBadge />
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutBtn} accessibilityLabel="Se deconnecter">
+            <Feather name="log-out" size={16} color="#D32F2F" />
+          </TouchableOpacity>
+        </View>
       </View>
       <AlertBanner />
     </View>
@@ -43,11 +51,9 @@ export default function DriverLayout() {
     if (user?.id) {
       registerForPushNotifications(user.id);
     }
-
     startQueueListener((count) => {
-      console.log(`${count} saisie(s) synchronisée(s)`);
+      console.log(`${count} saisie(s) synchronisee(s)`);
     });
-
     return () => stopQueueListener();
   }, [user?.id]);
 
@@ -58,16 +64,25 @@ export default function DriverLayout() {
         screenOptions={{
           headerShown: false,
           tabBarActiveTintColor: '#2E7D32',
-          tabBarInactiveTintColor: '#999',
-          tabBarStyle: { paddingBottom: 4, height: 60 },
-          tabBarLabelStyle: { fontSize: 12, fontWeight: '600' },
+          tabBarInactiveTintColor: '#9CA3AF',
+          tabBarStyle: {
+            paddingBottom: 6,
+            paddingTop: 6,
+            height: 64,
+            backgroundColor: '#fff',
+            borderTopWidth: 1,
+            borderTopColor: '#F3F4F6',
+            elevation: 0,
+            shadowOpacity: 0,
+          },
+          tabBarLabelStyle: { fontSize: 11, fontWeight: '600', marginTop: 2 },
         }}
       >
         <Tabs.Screen
           name="index"
           options={{
             title: 'Carburant',
-            tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>⛽</Text>,
+            tabBarIcon: ({ color, size }) => <Feather name="droplet" size={22} color={color} />,
             tabBarAccessibilityLabel: 'Onglet Carburant',
           }}
         />
@@ -75,7 +90,7 @@ export default function DriverLayout() {
           name="cleaning"
           options={{
             title: 'Nettoyage',
-            tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>🧹</Text>,
+            tabBarIcon: ({ color, size }) => <Feather name="refresh-cw" size={22} color={color} />,
             tabBarAccessibilityLabel: 'Onglet Nettoyage',
           }}
         />
@@ -83,15 +98,13 @@ export default function DriverLayout() {
           name="incident"
           options={{
             title: 'Signaler',
-            tabBarIcon: ({ color }) => <Text style={{ color, fontSize: 24 }}>⚠️</Text>,
-            tabBarAccessibilityLabel: 'Onglet Signaler un problème',
+            tabBarIcon: ({ color, size }) => <Feather name="alert-triangle" size={22} color={color} />,
+            tabBarAccessibilityLabel: 'Onglet Signaler',
           }}
         />
         <Tabs.Screen
           name="alerts"
-          options={{
-            href: null,
-          }}
+          options={{ href: null }}
         />
       </Tabs>
     </>
@@ -101,48 +114,61 @@ export default function DriverLayout() {
 const styles = StyleSheet.create({
   header: {
     backgroundColor: '#fff',
-    paddingTop: 50,
-    paddingBottom: 8,
+    paddingTop: 52,
+    paddingBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    borderBottomColor: '#F3F4F6',
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     marginBottom: 4,
   },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  logoIcon: {
+    width: 28,
+    height: 28,
+    borderRadius: 8,
+    backgroundColor: '#2E7D32',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   greeting: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
-    color: '#2E7D32',
-    flex: 1,
+    color: '#111827',
   },
   plateBadge: {
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#F0FDF4',
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 8,
+    borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#2E7D32',
-    marginRight: 8,
+    borderColor: '#BBF7D0',
   },
   plateText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '700',
     color: '#2E7D32',
+    letterSpacing: 1,
   },
   logoutBtn: {
-    backgroundColor: '#f5f5f5',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    width: 36,
+    height: 36,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  logoutText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#D32F2F',
+    backgroundColor: '#FEF2F2',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

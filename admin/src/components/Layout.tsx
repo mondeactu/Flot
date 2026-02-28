@@ -5,20 +5,33 @@ import NotificationBell from './NotificationBell';
 import RealtimeNotifications from './RealtimeNotifications';
 import ToastContainer from './Toast';
 import PWAInstallPrompt from './PWAInstallPrompt';
+import StorageBanner from './StorageBanner';
+import {
+  LayoutDashboard,
+  Truck,
+  Users,
+  Bell,
+  FileSpreadsheet,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+} from 'lucide-react';
 
 const NAV_ITEMS = [
-  { path: '/', label: 'Tableau de bord', icon: '🏠' },
-  { path: '/vehicles', label: 'Véhicules', icon: '🚗' },
-  { path: '/drivers', label: 'Conducteurs', icon: '👤' },
-  { path: '/alerts', label: 'Alertes', icon: '🔔' },
-  { path: '/exports', label: 'Exports', icon: '📊' },
-  { path: '/settings', label: 'Paramètres', icon: '⚙️' },
+  { path: '/', label: 'Tableau de bord', icon: LayoutDashboard },
+  { path: '/vehicles', label: 'Vehicules', icon: Truck },
+  { path: '/drivers', label: 'Conducteurs', icon: Users },
+  { path: '/alerts', label: 'Alertes', icon: Bell },
+  { path: '/exports', label: 'Exports', icon: FileSpreadsheet },
+  { path: '/settings', label: 'Parametres', icon: Settings },
 ];
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { profile, logout } = useAuthStore();
   const location = useLocation();
   const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -28,71 +41,121 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       {/* Sidebar — desktop */}
-      <aside className="hidden md:flex md:flex-col md:w-64 bg-white border-r border-gray-200 min-h-screen">
-        <div className="p-6 border-b border-gray-100">
-          <h1 className="text-2xl font-extrabold text-green-700">🚛 Flot</h1>
-          <p className="text-sm text-gray-500 mt-1">{profile?.full_name ?? 'Admin'}</p>
+      <aside className="hidden md:flex md:flex-col md:w-60 bg-white border-r border-gray-100 min-h-screen">
+        <div className="px-5 py-5 border-b border-gray-100">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 bg-green-700 rounded-lg flex items-center justify-center">
+              <Truck size={16} className="text-white" />
+            </div>
+            <span className="text-xl font-bold text-gray-900">Flot</span>
+          </div>
+          <p className="text-xs text-gray-400 mt-2 pl-0.5">{profile?.full_name ?? 'Admin'}</p>
         </div>
-        <nav className="flex-1 p-4 space-y-1">
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                location.pathname === item.path
-                  ? 'bg-green-50 text-green-700'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <span className="text-lg">{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
+        <nav className="flex-1 px-3 py-4 space-y-0.5">
+          {NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
+            const active = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  active
+                    ? 'bg-green-50 text-green-700'
+                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                }`}
+              >
+                <Icon size={18} strokeWidth={active ? 2.2 : 1.8} />
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
-        <div className="p-4 border-t border-gray-100">
+        <div className="px-3 py-4 border-t border-gray-100">
           <button
             onClick={handleLogout}
-            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
           >
-            Se déconnecter
+            <LogOut size={18} strokeWidth={1.8} />
+            Se deconnecter
           </button>
         </div>
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between md:px-6">
-          <h2 className="text-lg font-bold text-gray-800 md:hidden">🚛 Flot</h2>
-          <div className="flex items-center gap-4">
+        <header className="bg-white border-b border-gray-100 px-4 py-3 flex items-center justify-between md:px-6">
+          <div className="flex items-center gap-3 md:hidden">
+            <button onClick={() => setMobileMenuOpen(true)} className="p-1.5 hover:bg-gray-100 rounded-lg">
+              <Menu size={20} className="text-gray-600" />
+            </button>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 bg-green-700 rounded flex items-center justify-center">
+                <Truck size={12} className="text-white" />
+              </div>
+              <span className="font-bold text-gray-900">Flot</span>
+            </div>
+          </div>
+          <div className="hidden md:block" />
+          <div className="flex items-center gap-3">
             <NotificationBell />
           </div>
         </header>
 
-        {/* Page content */}
+        <StorageBanner />
         <main className="flex-1 p-4 md:p-6 overflow-auto">{children}</main>
       </div>
 
-      {/* Realtime notifications */}
+      {/* Realtime + Toast + PWA */}
       <RealtimeNotifications />
       <ToastContainer />
       <PWAInstallPrompt />
 
-      {/* Bottom tab bar — mobile */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2 z-50">
-        {NAV_ITEMS.slice(0, 5).map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`flex flex-col items-center text-xs ${
-              location.pathname === item.path ? 'text-green-700' : 'text-gray-400'
-            }`}
-          >
-            <span className="text-xl">{item.icon}</span>
-            <span className="mt-0.5">{item.label.split(' ')[0]}</span>
-          </Link>
-        ))}
-      </nav>
+      {/* Mobile menu overlay */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setMobileMenuOpen(false)} />
+          <div className="absolute left-0 top-0 bottom-0 w-64 bg-white shadow-xl flex flex-col">
+            <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 bg-green-700 rounded-lg flex items-center justify-center">
+                  <Truck size={16} className="text-white" />
+                </div>
+                <span className="text-xl font-bold text-gray-900">Flot</span>
+              </div>
+              <button onClick={() => setMobileMenuOpen(false)} className="p-1 hover:bg-gray-100 rounded-lg">
+                <X size={18} className="text-gray-400" />
+              </button>
+            </div>
+            <nav className="flex-1 px-3 py-4 space-y-0.5">
+              {NAV_ITEMS.map((item) => {
+                const Icon = item.icon;
+                const active = location.pathname === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                      active ? 'bg-green-50 text-green-700' : 'text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Icon size={18} />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+            <div className="px-3 py-4 border-t border-gray-100">
+              <button onClick={handleLogout} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-gray-400 hover:text-red-600 rounded-lg">
+                <LogOut size={18} />
+                Se deconnecter
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import MonthlyReportModal from '../components/MonthlyReportModal';
 const COLORS = ['#2E7D32', '#42A5F5', '#FF9800', '#D32F2F', '#9C27B0', '#607D8B'];
 
 export default function Dashboard() {
-  const [kpis, setKpis] = useState({ vehicles: 0, alerts: 0, fuelHT: 0, fuelTVA: 0, fuelTTC: 0, cleaning: 0, recurring: 0, extra: 0 });
+  const [kpis, setKpis] = useState({ vehicles: 0, alerts: 0, fuelHT: 0, fuelTVA: 0, fuelTTC: 0, cleaning: 0, recurring: 0, extra: 0, incidents: 0, incidentCount: 0 });
   const [monthlyData, setMonthlyData] = useState<{ month: string; fuel: number; cleaning: number; maintenance: number; incidents: number }[]>([]);
   const [donutData, setDonutData] = useState<{ name: string; value: number }[]>([]);
   const [report, setReport] = useState<{ period: string; data: Record<string, unknown> } | null>(null);
@@ -17,7 +17,7 @@ export default function Dashboard() {
       const now = new Date();
       const startOfMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
 
-      const [vehiclesR, alertsR, fuelR, cleanR, recurR, extraR, reportR] = await Promise.all([
+      const [vehiclesR, alertsR, fuelR, cleanR, recurR, extraR, reportR, incR] = await Promise.all([
         supabase.from('vehicles').select('id', { count: 'exact', head: true }),
         supabase.from('alerts').select('id', { count: 'exact', head: true }).eq('acknowledged', false),
         supabase.from('fuel_fills').select('price_ht, price_ttc').gte('filled_at', startOfMonth),
@@ -25,6 +25,7 @@ export default function Dashboard() {
         supabase.from('recurring_costs').select('amount, frequency').eq('active', true),
         supabase.from('extra_costs').select('amount').gte('cost_date', startOfMonth),
         supabase.from('monthly_reports').select('period, data').order('created_at', { ascending: false }).limit(1).single(),
+        supabase.from('incidents').select('amount').gte('incident_date', startOfMonth),
       ]);
 
       const fuelHT = (fuelR.data ?? []).reduce((s, r) => s + Number(r.price_ht), 0);
@@ -34,6 +35,7 @@ export default function Dashboard() {
         return s + (r.frequency === 'annual' ? Number(r.amount) / 12 : Number(r.amount));
       }, 0);
       const extraTotal = (extraR.data ?? []).reduce((s, r) => s + Number(r.amount), 0);
+      const incTotal = (incR.data ?? []).reduce((s, r) => s + Number(r.amount ?? 0), 0);
 
       setKpis({
         vehicles: vehiclesR.count ?? 0,
@@ -44,6 +46,8 @@ export default function Dashboard() {
         cleaning: cleanTotal,
         recurring: recurTotal,
         extra: extraTotal,
+        incidents: incTotal,
+        incidentCount: (incR.data ?? []).length,
       });
 
       setDonutData([
@@ -102,6 +106,7 @@ export default function Dashboard() {
         <KPICard label="Véhicules actifs" value={kpis.vehicles.toString()} />
         <KPICard label="Alertes" value={kpis.alerts.toString()} alert={kpis.alerts > 0} />
         <KPICard label="Carburant HT" value={fmt(kpis.fuelHT)} sub={`TVA: ${fmt(kpis.fuelTVA)} — TTC: ${fmt(kpis.fuelTTC)}`} />
+        <KPICard label="Incidents" value={kpis.incidentCount > 0 ? `${kpis.incidentCount} (${fmt(kpis.incidents)})` : '0'} alert={kpis.incidentCount > 0} />
         <KPICard label="Coût total flotte" value={fmt(total)} />
       </div>
 

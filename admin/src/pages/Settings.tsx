@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/auth.store';
+import { getStorageStats, exportPhotosAndCleanup, type StorageStats } from '../lib/storage';
 
 interface AlertSettings {
   id: string;
@@ -11,28 +12,22 @@ interface AlertSettings {
   no_fill_alert_days: number;
 }
 
-interface DriverRow { id: string; full_name: string; phone: string | null; }
-
 export default function Settings() {
   const { session } = useAuthStore();
   const [settings, setSettings] = useState<AlertSettings | null>(null);
-  const [drivers, setDrivers] = useState<DriverRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [applying, setApplying] = useState(false);
   const [message, setMessage] = useState('');
-  const [showAddDriver, setShowAddDriver] = useState(false);
-  const [driverForm, setDriverForm] = useState({ full_name: '', email: '', password: '', phone: '' });
-  const [addingDriver, setAddingDriver] = useState(false);
+  const [storageStats, setStorageStats] = useState<StorageStats | null>(null);
+  const [storageLoading, setStorageLoading] = useState(false);
+  const [exportProgress, setExportProgress] = useState('');
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
-      const [sRes, dRes] = await Promise.all([
-        supabase.from('alert_settings').select('id, alert_inspection_days_before, alert_maintenance_days_before, alert_maintenance_km_before, fuel_alert_threshold_l100, no_fill_alert_days').limit(1).single(),
-        supabase.from('profiles').select('id, full_name, phone').eq('role', 'driver').order('full_name'),
-      ]);
+      const sRes = await supabase.from('alert_settings').select('id, alert_inspection_days_before, alert_maintenance_days_before, alert_maintenance_km_before, fuel_alert_threshold_l100, no_fill_alert_days').limit(1).single();
       setSettings(sRes.data as AlertSettings | null);
-      setDrivers(dRes.data ?? []);
       setLoading(false);
     };
     fetch();
@@ -71,80 +66,12 @@ export default function Settings() {
     finally { setApplying(false); }
   };
 
-  const addDriver = async () => {
-    if (!driverForm.full_name || !driverForm.email || !driverForm.password) return;
-    setAddingDriver(true);
-    try {
-      const token = session?.access_token;
-      const res = await supabase.functions.invoke('admin-actions', {
-        body: { action: 'create_driver', ...driverForm },
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      if (res.error) throw res.error;
-      const data = res.data as Record<string, unknown>;
-      if (data.error) throw new Error(data.error as string);
-      setDriverForm({ full_name: '', email: '', password: '', phone: '' });
-      setShowAddDriver(false);
-      const { data: dRes } = await supabase.from('profiles').select('id, full_name, phone').eq('role', 'driver').order('full_name');
-      setDrivers(dRes ?? []);
-      setMessage('✅ Conducteur créé');
-    } catch (err) {
-      setMessage(`❌ ${err instanceof Error ? err.message : 'Erreur'}`);
-    } finally { setAddingDriver(false); }
-  };
-
-  const deleteDriver = async (driverId: string) => {
-    if (!window.confirm('Supprimer ce conducteur ?')) return;
-    try {
-      const token = session?.access_token;
-      await supabase.functions.invoke('admin-actions', {
-        body: { action: 'delete_driver', driver_id: driverId },
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      setDrivers((prev) => prev.filter((d) => d.id !== driverId));
-    } catch { setMessage('❌ Erreur suppression'); }
-  };
-
   if (loading) return <div className="flex items-center justify-center h-64"><p className="text-gray-500">Chargement...</p></div>;
 
   return (
     <div className="space-y-6 pb-20 md:pb-0 max-w-3xl">
       <h1 className="text-2xl font-extrabold text-gray-800">Paramètres</h1>
       {message && <p className={`text-sm ${message.startsWith('✅') ? 'text-green-600' : 'text-red-600'}`}>{message}</p>}
-
-      {/* Drivers management */}
-      <div className="bg-white rounded-xl border p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-gray-800">Gestion des conducteurs</h3>
-          <button onClick={() => setShowAddDriver(!showAddDriver)} className="px-4 py-2 bg-green-700 text-white rounded-lg text-sm hover:bg-green-800">
-            {showAddDriver ? 'Annuler' : '+ Ajouter'}
-          </button>
-        </div>
-
-        {showAddDriver && (
-          <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input placeholder="Nom complet *" value={driverForm.full_name} onChange={(e) => setDriverForm({ ...driverForm, full_name: e.target.value })} className="border rounded px-3 py-2 text-sm" />
-            <input placeholder="Email *" type="email" value={driverForm.email} onChange={(e) => setDriverForm({ ...driverForm, email: e.target.value })} className="border rounded px-3 py-2 text-sm" />
-            <input placeholder="Mot de passe *" type="password" value={driverForm.password} onChange={(e) => setDriverForm({ ...driverForm, password: e.target.value })} className="border rounded px-3 py-2 text-sm" />
-            <input placeholder="Téléphone" value={driverForm.phone} onChange={(e) => setDriverForm({ ...driverForm, phone: e.target.value })} className="border rounded px-3 py-2 text-sm" />
-            <button onClick={addDriver} disabled={addingDriver} className="md:col-span-2 px-4 py-2 bg-green-700 text-white rounded text-sm disabled:opacity-50">
-              {addingDriver ? 'Création...' : 'Créer le conducteur'}
-            </button>
-          </div>
-        )}
-
-        {drivers.map((d) => (
-          <div key={d.id} className="flex items-center justify-between p-3 border rounded-lg">
-            <div>
-              <p className="text-sm font-medium">{d.full_name}</p>
-              <p className="text-xs text-gray-500">{d.phone ?? '—'}</p>
-            </div>
-            <button onClick={() => deleteDriver(d.id)} className="text-xs px-3 py-1 bg-red-50 text-red-600 rounded hover:bg-red-100">
-              Supprimer
-            </button>
-          </div>
-        ))}
-      </div>
 
       {/* Alert settings */}
       {settings && (
@@ -180,6 +107,96 @@ export default function Settings() {
           </div>
         </div>
       )}
+
+      {/* Storage management */}
+      <div className="bg-white rounded-xl border p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold text-gray-800">Stockage Supabase</h3>
+          <button
+            onClick={async () => {
+              setStorageLoading(true);
+              try { setStorageStats(await getStorageStats()); }
+              catch { setMessage('❌ Erreur chargement stockage'); }
+              finally { setStorageLoading(false); }
+            }}
+            disabled={storageLoading}
+            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 disabled:opacity-50"
+          >
+            {storageLoading ? 'Chargement...' : 'Actualiser'}
+          </button>
+        </div>
+
+        {storageStats ? (
+          <>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Utilisation totale</span>
+                <span className={`font-bold ${storageStats.overThreshold ? 'text-orange-600' : 'text-green-600'}`}>
+                  {storageStats.totalMB} MB / 500 MB
+                </span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div
+                  className={`h-3 rounded-full transition-all ${
+                    storageStats.overThreshold ? 'bg-orange-500' : 'bg-green-500'
+                  }`}
+                  style={{ width: `${Math.min((storageStats.totalMB / 500) * 100, 100)}%` }}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              {storageStats.buckets.map((b) => (
+                <div key={b.name} className="bg-gray-50 rounded-lg p-3 text-center">
+                  <p className="text-xs text-gray-500 capitalize">{b.name}</p>
+                  <p className="text-sm font-bold text-gray-800">{b.sizeMB} MB</p>
+                  <p className="text-xs text-gray-400">{b.fileCount} fichiers</p>
+                </div>
+              ))}
+            </div>
+
+            {exporting && (
+              <p className="text-sm text-orange-600 font-medium">{exportProgress}</p>
+            )}
+
+            <button
+              onClick={async () => {
+                if (!window.confirm(
+                  'Exporter toutes les photos en ZIP puis les supprimer du stockage ?\n\n' +
+                  'Organisation : Plaque / Carburant | Nettoyage | Incident\n' +
+                  'Cette action est irreversible.'
+                )) return;
+                setExporting(true);
+                setExportProgress('Demarrage...');
+                try {
+                  const blob = await exportPhotosAndCleanup((msg) => setExportProgress(msg));
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `flot-photos-${new Date().toISOString().slice(0, 10)}.zip`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                  setStorageStats(await getStorageStats());
+                  setMessage('✅ Export termine, stockage nettoye');
+                } catch {
+                  setMessage('❌ Erreur export');
+                } finally {
+                  setExporting(false);
+                  setExportProgress('');
+                }
+              }}
+              disabled={exporting}
+              className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 disabled:opacity-50"
+            >
+              {exporting ? 'Export en cours...' : 'Exporter ZIP + nettoyer le stockage'}
+            </button>
+          </>
+        ) : (
+          <p className="text-sm text-gray-500">Cliquez sur "Actualiser" pour voir l'utilisation du stockage.</p>
+        )}
+      </div>
 
       <p className="text-xs text-gray-400 text-center">Flot v1.0.0</p>
     </div>

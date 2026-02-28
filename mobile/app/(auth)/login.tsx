@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../stores/auth.store';
 
@@ -72,7 +73,9 @@ export default function LoginScreen() {
       <View style={styles.inner}>
         {/* Logo */}
         <View style={styles.logoContainer}>
-          <Text style={styles.logoEmoji}>🚛</Text>
+          <View style={styles.logoIcon}>
+            <Feather name="truck" size={32} color="#fff" />
+          </View>
           <Text style={styles.logoText}>Flot</Text>
           <Text style={styles.subtitle}>Gestion de flotte</Text>
         </View>
@@ -85,7 +88,7 @@ export default function LoginScreen() {
             accessibilityLabel="Mode conducteur"
           >
             <Text style={[styles.toggleText, mode === 'driver' && styles.toggleTextActive]}>
-              🚛 Conducteur
+              Conducteur
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -94,7 +97,7 @@ export default function LoginScreen() {
             accessibilityLabel="Mode administrateur"
           >
             <Text style={[styles.toggleText, mode === 'admin' && styles.toggleTextActive]}>
-              👤 Admin
+              Admin
             </Text>
           </TouchableOpacity>
         </View>
@@ -193,9 +196,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 32,
   },
-  logoEmoji: {
-    fontSize: 64,
-    marginBottom: 8,
+  logoIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: '#2E7D32',
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    marginBottom: 12,
   },
   logoText: {
     fontSize: 40,

@@ -168,19 +168,17 @@ export default function IncidentScreen() {
         />
       </View>
 
-      {selectedType === 'amende' && (
-        <View style={styles.field}>
-          <Text style={styles.label}>Montant (€)</Text>
-          <TextInput
-            style={styles.input}
-            value={amount}
-            onChangeText={setAmount}
-            keyboardType="decimal-pad"
-            placeholder="0.00"
-            accessibilityLabel="Montant de l'amende"
-          />
-        </View>
-      )}
+      <View style={styles.field}>
+        <Text style={styles.label}>Montant (€) {selectedType === 'amende' ? '*' : '(optionnel)'}</Text>
+        <TextInput
+          style={styles.input}
+          value={amount}
+          onChangeText={setAmount}
+          keyboardType="decimal-pad"
+          placeholder="0.00"
+          accessibilityLabel="Montant"
+        />
+      </View>
 
       <TouchableOpacity
         style={styles.photoButton}
