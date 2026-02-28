@@ -103,11 +103,10 @@ export default function Dashboard() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KPICard label="Véhicules actifs" value={kpis.vehicles.toString()} />
-        <KPICard label="Alertes" value={kpis.alerts.toString()} alert={kpis.alerts > 0} />
-        <KPICard label="Carburant HT" value={fmt(kpis.fuelHT)} sub={`TVA: ${fmt(kpis.fuelTVA)} — TTC: ${fmt(kpis.fuelTTC)}`} />
+        <KPICard label="Vehicules actifs" value={kpis.vehicles.toString()} />
+        <KPICard label="Carburant HT" value={fmt(kpis.fuelHT)} sub={`TVA: ${fmt(kpis.fuelTVA)} | TTC: ${fmt(kpis.fuelTTC)}`} />
         <KPICard label="Incidents" value={kpis.incidentCount > 0 ? `${kpis.incidentCount} (${fmt(kpis.incidents)})` : '0'} alert={kpis.incidentCount > 0} />
-        <KPICard label="Coût total flotte" value={fmt(total)} />
+        <KPICard label="Cout total flotte" value={fmt(total)} />
       </div>
 
       {/* Charts */}
@@ -147,7 +146,7 @@ export default function Dashboard() {
 
       {report && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
-          <span className="text-sm text-blue-800">📊 Rapport mensuel {report.period} disponible</span>
+          <span className="text-sm text-blue-800 font-medium">Rapport mensuel {report.period} disponible</span>
           <button onClick={() => setShowReport(true)} className="text-sm px-4 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700">Voir</button>
         </div>
       )}

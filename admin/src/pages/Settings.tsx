@@ -76,7 +76,7 @@ export default function Settings() {
       {/* Alert settings */}
       {settings && (
         <div className="bg-white rounded-xl border p-6 space-y-4">
-          <h3 className="text-lg font-bold text-gray-800">⚠️ Seuils d'alerte globaux</h3>
+          <h3 className="text-lg font-bold text-gray-800">Seuils d'alerte globaux</h3>
 
           {[
             { label: 'CT : alerter J-X avant expiration (jours)', key: 'alert_inspection_days_before' as const },

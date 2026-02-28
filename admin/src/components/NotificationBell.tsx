@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Bell } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function NotificationBell() {
@@ -23,16 +24,14 @@ export default function NotificationBell() {
       })
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   return (
     <Link to="/alerts" className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
-      <span className="text-xl">🔔</span>
+      <Bell size={20} className="text-gray-500" />
       {count > 0 && (
-        <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+        <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
           {count > 99 ? '99+' : count}
         </span>
       )}
