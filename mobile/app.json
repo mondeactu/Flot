@@ -31,6 +31,16 @@
         "WAKE_LOCK"
       ]
     },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "name": "Flot - Gestion de flotte",
+      "shortName": "Flot",
+      "description": "Application de gestion de flotte pour conducteurs",
+      "backgroundColor": "#2E7D32",
+      "themeColor": "#2E7D32"
+    },
     "plugins": [
       "expo-router",
       [

@@ -46,8 +46,8 @@ export default function Settings() {
         no_fill_alert_days: settings.no_fill_alert_days,
       }).eq('id', settings.id);
       if (error) throw error;
-      setMessage('✅ Paramètres sauvegardés');
-    } catch { setMessage('❌ Erreur'); }
+      setMessage('success: Paramètres sauvegardés');
+    } catch { setMessage('error: Erreur'); }
     finally { setSaving(false); }
   };
 
@@ -61,8 +61,8 @@ export default function Settings() {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (res.error) throw res.error;
-      setMessage('✅ Seuils appliqués à tous les véhicules');
-    } catch { setMessage('❌ Erreur'); }
+      setMessage('success: Seuils appliqués à tous les véhicules');
+    } catch { setMessage('error: Erreur'); }
     finally { setApplying(false); }
   };
 
@@ -71,7 +71,7 @@ export default function Settings() {
   return (
     <div className="space-y-6 pb-20 md:pb-0 max-w-3xl">
       <h1 className="text-2xl font-extrabold text-gray-800">Paramètres</h1>
-      {message && <p className={`text-sm ${message.startsWith('✅') ? 'text-green-600' : 'text-red-600'}`}>{message}</p>}
+      {message && <p className={`text-sm ${message.startsWith('success:') ? 'text-green-600' : 'text-red-600'}`}>{message.replace(/^(success:|error:)/, '')}</p>}
 
       {/* Alert settings */}
       {settings && (
@@ -116,7 +116,7 @@ export default function Settings() {
             onClick={async () => {
               setStorageLoading(true);
               try { setStorageStats(await getStorageStats()); }
-              catch { setMessage('❌ Erreur chargement stockage'); }
+              catch { setMessage('error: Erreur chargement stockage'); }
               finally { setStorageLoading(false); }
             }}
             disabled={storageLoading}
@@ -179,9 +179,9 @@ export default function Settings() {
                   document.body.removeChild(a);
                   URL.revokeObjectURL(url);
                   setStorageStats(await getStorageStats());
-                  setMessage('✅ Export termine, stockage nettoye');
+                  setMessage('success: Export termine, stockage nettoye');
                 } catch {
-                  setMessage('❌ Erreur export');
+                  setMessage('error: Erreur export');
                 } finally {
                   setExporting(false);
                   setExportProgress('');

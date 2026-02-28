@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import PhotoViewer from '../PhotoViewer';
-import { Check, Pencil, Euro, Calendar } from 'lucide-react';
+import { Check, Pencil, Euro, Calendar, Wrench, Zap, Search, FileText, Circle, StickyNote, HelpCircle } from 'lucide-react';
 
-const TYPE_LABELS: Record<string, { icon: string; label: string; color: string }> = {
-  panne: { icon: '🔧', label: 'Panne', color: 'bg-orange-100 text-orange-700' },
-  accident: { icon: '💥', label: 'Accident', color: 'bg-red-100 text-red-700' },
-  degat: { icon: '🔍', label: 'Degat', color: 'bg-yellow-100 text-yellow-700' },
-  amende: { icon: '📋', label: 'Amende', color: 'bg-purple-100 text-purple-700' },
-  pneu: { icon: '🔴', label: 'Pneu', color: 'bg-gray-100 text-gray-700' },
-  autre: { icon: '📝', label: 'Autre', color: 'bg-blue-100 text-blue-700' },
+const TYPE_LABELS: Record<string, { icon: React.ReactNode; label: string; color: string }> = {
+  panne: { icon: <Wrench size={12} />, label: 'Panne', color: 'bg-orange-100 text-orange-700' },
+  accident: { icon: <Zap size={12} />, label: 'Accident', color: 'bg-red-100 text-red-700' },
+  degat: { icon: <Search size={12} />, label: 'Degat', color: 'bg-yellow-100 text-yellow-700' },
+  amende: { icon: <FileText size={12} />, label: 'Amende', color: 'bg-purple-100 text-purple-700' },
+  pneu: { icon: <Circle size={12} />, label: 'Pneu', color: 'bg-gray-100 text-gray-700' },
+  autre: { icon: <StickyNote size={12} />, label: 'Autre', color: 'bg-blue-100 text-blue-700' },
 };
 
 interface Incident {
@@ -95,7 +95,7 @@ export default function TabIncidents({ vehicleId }: { vehicleId: string }) {
       )}
 
       {incidents.map((inc) => {
-        const typeInfo = TYPE_LABELS[inc.type] ?? { icon: '❓', label: inc.type, color: 'bg-gray-100 text-gray-700' };
+        const typeInfo = TYPE_LABELS[inc.type] ?? { icon: <HelpCircle size={12} />, label: inc.type, color: 'bg-gray-100 text-gray-700' };
         const isEditing = editingId === inc.id;
 
         return (

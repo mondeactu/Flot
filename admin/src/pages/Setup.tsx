@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Truck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 export default function Setup() {
@@ -63,7 +64,7 @@ export default function Setup() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <p className="text-5xl mb-3">🚛</p>
+          <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-3"><Truck size={32} className="text-green-700" /></div>
           <h1 className="text-3xl font-extrabold text-green-700">Flot</h1>
           <p className="text-gray-500 mt-2">Configuration initiale</p>
         </div>

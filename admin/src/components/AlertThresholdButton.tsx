@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface AlertThresholdButtonProps {
@@ -59,7 +60,7 @@ export default function AlertThresholdButton({
         }`}
         title={`Seuil d'alerte : ${label}`}
       >
-        ⚠️
+        <AlertTriangle size={14} />
       </button>
 
       {open && (

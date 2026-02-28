@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Truck } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -33,7 +34,7 @@ export default function PWAInstallPrompt() {
 
   return (
     <div className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-white border border-gray-200 rounded-xl shadow-lg p-4 z-50 flex items-center gap-3">
-      <div className="text-3xl">🚛</div>
+      <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0"><Truck size={20} className="text-green-700" /></div>
       <div className="flex-1">
         <p className="text-sm font-bold text-gray-800">Installer Flot Admin</p>
         <p className="text-xs text-gray-500">Acces rapide depuis l'ecran d'accueil</p>

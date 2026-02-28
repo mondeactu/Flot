@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { Fuel, Sparkles, AlertTriangle, X } from 'lucide-react';
 
 export interface ToastItem {
   id: string;
@@ -7,10 +8,10 @@ export interface ToastItem {
   message: string;
 }
 
-const ICONS: Record<string, string> = {
-  fuel: '⛽',
-  cleaning: '🧹',
-  incident: '⚠️',
+const ICONS: Record<string, React.ReactNode> = {
+  fuel: <Fuel size={18} className="text-green-600" />,
+  cleaning: <Sparkles size={18} className="text-blue-600" />,
+  incident: <AlertTriangle size={18} className="text-red-600" />,
 };
 
 const COLORS: Record<string, string> = {
@@ -59,16 +60,16 @@ export default function ToastContainer() {
           className={`pointer-events-auto border-l-4 rounded-lg shadow-lg p-4 flex items-start gap-3 animate-slide-in ${COLORS[toast.type] || 'bg-white border-l-gray-400'}`}
           role="alert"
         >
-          <span className="text-xl">{ICONS[toast.type] || '📌'}</span>
+          <span className="flex-shrink-0">{ICONS[toast.type] || <AlertTriangle size={18} className="text-gray-500" />}</span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-gray-800">{toast.title}</p>
             <p className="text-xs text-gray-600 mt-0.5 truncate">{toast.message}</p>
           </div>
           <button
             onClick={() => dismiss(toast.id)}
-            className="text-gray-400 hover:text-gray-600 text-lg leading-none"
+            className="text-gray-400 hover:text-gray-600 flex-shrink-0"
           >
-            x
+            <X size={14} />
           </button>
         </div>
       ))}

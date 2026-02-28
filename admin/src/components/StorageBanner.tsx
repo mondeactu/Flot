@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { getStorageStats, exportPhotosAndCleanup, type StorageStats } from '../lib/storage';
 
 export default function StorageBanner() {
@@ -53,7 +54,7 @@ export default function StorageBanner() {
   return (
     <div className="bg-orange-50 border border-orange-300 rounded-lg px-4 py-3 mx-4 mt-3 md:mx-6">
       <div className="flex items-start gap-3">
-        <span className="text-2xl flex-shrink-0">⚠️</span>
+        <span className="flex-shrink-0"><AlertTriangle size={22} className="text-orange-600" /></span>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-orange-800">
             Stockage presque plein : {stats.totalMB} MB / 500 MB

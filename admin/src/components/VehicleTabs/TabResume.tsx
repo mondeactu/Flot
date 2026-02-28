@@ -49,10 +49,10 @@ export default function TabResume({ vehicle, onUpdated }: TabResumeProps) {
         .eq('id', vehicle.id);
 
       if (error) throw error;
-      setMessage('✅ Véhicule mis à jour');
+      setMessage('success:Vehicule mis a jour');
       onUpdated();
     } catch {
-      setMessage('❌ Erreur lors de la sauvegarde');
+      setMessage('error:Erreur lors de la sauvegarde');
     } finally {
       setSaving(false);
     }
@@ -60,7 +60,7 @@ export default function TabResume({ vehicle, onUpdated }: TabResumeProps) {
 
   return (
     <div className="space-y-4">
-      {message && <p className={`text-sm ${message.startsWith('✅') ? 'text-green-600' : 'text-red-600'}`}>{message}</p>}
+      {message && <p className={`text-sm ${message.startsWith('success:') ? 'text-green-600' : 'text-red-600'}`}>{message.replace(/^(success:|error:)/, '')}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>

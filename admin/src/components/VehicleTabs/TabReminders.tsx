@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
+import { Check, Plus, Bell } from 'lucide-react';
 
 interface Reminder { id: string; label: string; reminder_date: string; alert_days_before: number; notes: string | null; done: boolean; }
 
@@ -34,8 +35,8 @@ export default function TabReminders({ vehicleId }: { vehicleId: string }) {
 
   return (
     <div className="space-y-4">
-      <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-medium">
-        {showForm ? 'Annuler' : '+ Ajouter rappel'}
+      <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-2 px-4 py-2 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-800">
+        {showForm ? 'Annuler' : <><Plus size={14} /> Ajouter rappel</>}
       </button>
 
       {showForm && (
@@ -54,8 +55,8 @@ export default function TabReminders({ vehicleId }: { vehicleId: string }) {
         <div className="space-y-2">
           {reminders.map((r) => (
             <div key={r.id} className={`flex items-center gap-3 p-3 rounded-lg border ${r.done ? 'bg-gray-50 border-gray-200 opacity-60' : 'bg-white border-gray-300'}`}>
-              <button onClick={() => toggleDone(r.id, r.done)} className={`w-6 h-6 rounded border-2 flex items-center justify-center text-xs ${r.done ? 'bg-green-700 border-green-700 text-white' : 'border-gray-300'}`}>
-                {r.done ? '✓' : ''}
+              <button onClick={() => toggleDone(r.id, r.done)} className={`w-6 h-6 rounded border-2 flex items-center justify-center ${r.done ? 'bg-green-700 border-green-700 text-white' : 'border-gray-300'}`}>
+                {r.done && <Check size={12} />}
               </button>
               <div className="flex-1">
                 <p className={`text-sm font-medium ${r.done ? 'line-through text-gray-400' : 'text-gray-800'}`}>{r.label}</p>
