@@ -1,6 +1,13 @@
 [build]
-  command = "echo 'Pre-built'"
+  base = "mobile"
+  command = "npm install && npx expo export --platform web && cp assets/icon.png dist/assets/icon.png && cp assets/favicon.png dist/assets/favicon.png"
   publish = "dist"
+
+[build.environment]
+  EXPO_PUBLIC_SUPABASE_URL = "https://vrjprwoignfmgdvjsott.supabase.co"
+  EXPO_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZyanByd29pZ25mbWdkdmpzb3R0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgwMzYyNTgsImV4cCI6MjA2MzYxMjI1OH0.a9LKj0zcMKDBvEBB_7NJzLVMqGXhvjPOLX9kiLJGDP8"
+  EXPO_PUBLIC_GOOGLE_VISION_API_KEY = "AIzaSyDosp1p2eENZTnLGVzDijISbeGU6vdDtxI"
+  EXPO_PUBLIC_PROJECT_ID = "3ac2f542-8fa3-4385-a746-b84c0766f6cf"
 
 [[redirects]]
   from = "/*"
