@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
+import { colors, spacing, radius, typography, shadows } from '../../constants/theme';
 
 interface DriverRow {
   id: string;
@@ -71,13 +72,13 @@ export default function DriversListScreen() {
       accessibilityLabel={`Conducteur ${item.full_name}`}
     >
       <Text style={styles.name}>{item.full_name}</Text>
-      <Text style={styles.info}>📞 {item.phone ?? '—'}</Text>
-      <Text style={styles.info}>🚗 {item.vehicle_plate ?? 'Non assigné'}</Text>
+      <Text style={styles.info}>{item.phone ?? '--'}</Text>
+      <Text style={styles.info}>{item.vehicle_plate ?? 'Non assigne'}</Text>
     </TouchableOpacity>
   );
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color="#2E7D32" /></View>;
+    return <View style={styles.center}><ActivityIndicator size="large" color={colors.brand} /></View>;
   }
 
   return (
@@ -87,7 +88,7 @@ export default function DriversListScreen() {
         data={drivers}
         renderItem={renderDriver}
         keyExtractor={(item) => item.id}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchDrivers(); }} tintColor="#2E7D32" />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchDrivers(); }} tintColor={colors.brand} />}
         ListEmptyComponent={<View style={styles.empty}><Text style={styles.emptyText}>Aucun conducteur</Text></View>}
       />
     </View>
@@ -95,12 +96,21 @@ export default function DriversListScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', paddingTop: 50 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 22, fontWeight: '700', color: '#333', paddingHorizontal: 16, marginBottom: 12 },
-  card: { backgroundColor: '#fff', marginHorizontal: 16, marginBottom: 8, padding: 14, borderRadius: 10, borderLeftWidth: 4, borderLeftColor: '#2E7D32' },
-  name: { fontSize: 16, fontWeight: '700', color: '#333' },
-  info: { fontSize: 13, color: '#666', marginTop: 2 },
+  container: { flex: 1, backgroundColor: colors.bg, paddingTop: 50 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+  title: { ...typography.h2, color: colors.ink, paddingHorizontal: spacing.lg, marginBottom: spacing.md },
+  card: {
+    backgroundColor: colors.bgCard,
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.sm,
+    padding: spacing.lg,
+    borderRadius: radius.md,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.brand,
+    ...shadows.card,
+  },
+  name: { fontSize: 16, fontWeight: '700', color: colors.ink },
+  info: { ...typography.caption, color: colors.inkSecondary, marginTop: spacing.xs },
   empty: { padding: 40, alignItems: 'center' },
-  emptyText: { fontSize: 16, color: '#888' },
+  emptyText: { ...typography.body, color: colors.inkMuted },
 });

@@ -17,12 +17,10 @@ export default function Drivers() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  // Add driver
   const [showAdd, setShowAdd] = useState(false);
   const [addForm, setAddForm] = useState({ full_name: '', phone: '' });
   const [adding, setAdding] = useState(false);
 
-  // Edit driver
   const [editing, setEditing] = useState<Driver | null>(null);
   const [editForm, setEditForm] = useState({ full_name: '', phone: '' });
   const [saving, setSaving] = useState(false);
@@ -64,7 +62,6 @@ export default function Drivers() {
     setAdding(true);
     try {
       const token = session?.access_token;
-      // Generate a placeholder email/password for Supabase auth
       const slug = addForm.full_name.trim().toLowerCase().replace(/\s+/g, '.').replace(/[^a-z.]/g, '');
       const email = `driver.${slug}.${Date.now()}@saveursetvie.fr`;
       const password = `Flot${Date.now()}`;
@@ -79,11 +76,11 @@ export default function Drivers() {
 
       setAddForm({ full_name: '', phone: '' });
       setShowAdd(false);
-      setMessage('Conducteur ajoute');
+      setMessage('success:Conducteur ajoute avec succes');
       setTimeout(() => setMessage(''), 3000);
       fetchDrivers();
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'Erreur');
+      setMessage('error:' + (err instanceof Error ? err.message : 'Erreur'));
     } finally {
       setAdding(false);
     }
@@ -103,9 +100,11 @@ export default function Drivers() {
         phone: editForm.phone || null,
       }).eq('id', editing.id);
       setEditing(null);
+      setMessage('success:Conducteur modifie');
+      setTimeout(() => setMessage(''), 3000);
       fetchDrivers();
     } catch {
-      setMessage('Erreur modification');
+      setMessage('error:Erreur modification');
     } finally {
       setSaving(false);
     }
@@ -120,10 +119,10 @@ export default function Drivers() {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       fetchDrivers();
-      setMessage('Conducteur supprime');
+      setMessage('success:Conducteur supprime');
       setTimeout(() => setMessage(''), 3000);
     } catch {
-      setMessage('Erreur suppression');
+      setMessage('error:Erreur suppression');
     }
   };
 
@@ -133,148 +132,99 @@ export default function Drivers() {
     (d.vehicle_plate ?? '').toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-700" />
-      </div>
-    );
-  }
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-brand-700/30 border-t-brand-700 rounded-full animate-spin" /></div>;
 
   return (
     <div className="space-y-5 pb-20 md:pb-0">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="page-header">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
-            <Users size={20} className="text-green-700" />
+          <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center">
+            <Users size={20} className="text-brand-700" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Conducteurs</h1>
-            <p className="text-sm text-gray-500">{drivers.length} conducteur{drivers.length > 1 ? 's' : ''}</p>
+            <h1 className="page-title text-xl">{drivers.length} conducteur{drivers.length > 1 ? 's' : ''}</h1>
           </div>
         </div>
-        <button
-          onClick={() => setShowAdd(!showAdd)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-800 transition-colors shadow-sm"
-        >
-          <Plus size={16} />
-          Ajouter
+        <button onClick={() => setShowAdd(!showAdd)} className="btn-primary">
+          <Plus size={16} /> Ajouter
         </button>
       </div>
 
-      {/* Message */}
       {message && (
-        <div className="bg-green-50 border border-green-200 text-green-800 text-sm px-4 py-2.5 rounded-lg">
-          {message}
+        <div className={`text-sm px-4 py-3 rounded-xl font-medium animate-fade-in ${message.startsWith('success:') ? 'bg-brand-50 text-brand-700 border border-brand-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
+          {message.replace(/^(success:|error:)/, '')}
         </div>
       )}
 
-      {/* Add form */}
       {showAdd && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 space-y-4">
-          <h3 className="font-semibold text-gray-900">Nouveau conducteur</h3>
+        <div className="card p-5 space-y-4 animate-fade-in">
+          <h3 className="font-semibold text-ink">Nouveau conducteur</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Nom complet *</label>
-              <input
-                value={addForm.full_name}
-                onChange={(e) => setAddForm({ ...addForm, full_name: e.target.value })}
-                placeholder="Jean Dupont"
-                className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-              />
+              <label className="block text-xs font-semibold text-ink-secondary uppercase tracking-wider mb-2">Nom complet *</label>
+              <input value={addForm.full_name} onChange={(e) => setAddForm({ ...addForm, full_name: e.target.value })} placeholder="Jean Dupont" className="input-field" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Telephone</label>
-              <input
-                value={addForm.phone}
-                onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })}
-                placeholder="06 12 34 56 78"
-                className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-              />
+              <label className="block text-xs font-semibold text-ink-secondary uppercase tracking-wider mb-2">Telephone</label>
+              <input value={addForm.phone} onChange={(e) => setAddForm({ ...addForm, phone: e.target.value })} placeholder="06 12 34 56 78" className="input-field" />
             </div>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => setShowAdd(false)} className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
-              Annuler
-            </button>
-            <button
-              onClick={handleAdd}
-              disabled={adding || !addForm.full_name.trim()}
-              className="px-5 py-2 text-sm font-medium text-white bg-green-700 rounded-lg hover:bg-green-800 disabled:opacity-50"
-            >
+            <button onClick={() => setShowAdd(false)} className="btn-secondary">Annuler</button>
+            <button onClick={handleAdd} disabled={adding || !addForm.full_name.trim()} className="btn-primary">
               {adding ? 'Creation...' : 'Creer le conducteur'}
             </button>
           </div>
         </div>
       )}
 
-      {/* Search */}
       <div className="relative">
-        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Rechercher un conducteur..."
-          className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-        />
+        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted" />
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher un conducteur..." className="input-field pl-11" />
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50/80 border-b border-gray-100">
-              <th className="py-3 px-4 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide">Conducteur</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide hidden md:table-cell">Telephone</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide">Vehicule</th>
-              <th className="py-3 px-4 text-center font-semibold text-gray-600 text-xs uppercase tracking-wide">Incidents</th>
-              <th className="py-3 px-4 text-right font-semibold text-gray-600 text-xs uppercase tracking-wide">Actions</th>
+            <tr className="border-b border-border-light bg-surface/50">
+              <th className="table-header">Conducteur</th>
+              <th className="table-header hidden md:table-cell">Telephone</th>
+              <th className="table-header">Vehicule</th>
+              <th className="table-header text-center">Incidents</th>
+              <th className="table-header text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-border-light">
             {filtered.map((d) => (
-              <tr key={d.id} className="hover:bg-gray-50/50 transition-colors">
-                <td className="py-3.5 px-4">
-                  <p className="font-medium text-gray-900">{d.full_name}</p>
-                  <p className="text-xs text-gray-400 md:hidden">{d.phone ?? ''}</p>
+              <tr key={d.id} className="hover:bg-surface/60 transition-colors">
+                <td className="table-cell">
+                  <p className="font-medium text-ink">{d.full_name}</p>
+                  <p className="text-[11px] text-ink-muted md:hidden">{d.phone ?? ''}</p>
                 </td>
-                <td className="py-3.5 px-4 hidden md:table-cell">
+                <td className="table-cell hidden md:table-cell">
                   {d.phone ? (
-                    <span className="flex items-center gap-1.5 text-gray-600">
-                      <Phone size={13} className="text-gray-400" />
+                    <span className="flex items-center gap-1.5 text-ink-secondary">
+                      <Phone size={13} className="text-ink-muted" />
                       {d.phone}
                     </span>
-                  ) : (
-                    <span className="text-gray-300">—</span>
-                  )}
+                  ) : <span className="text-ink-faint">--</span>}
                 </td>
-                <td className="py-3.5 px-4">
+                <td className="table-cell">
                   {d.vehicle_plate ? (
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-md">
-                      <Truck size={12} />
-                      {d.vehicle_plate}
-                    </span>
-                  ) : (
-                    <span className="text-gray-300 text-xs">Non assigne</span>
-                  )}
+                    <span className="plate-badge"><Truck size={12} />{d.vehicle_plate}</span>
+                  ) : <span className="text-ink-faint text-xs">Non assigne</span>}
                 </td>
-                <td className="py-3.5 px-4 text-center">
+                <td className="table-cell text-center">
                   {d.incidentCount > 0 ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-50 text-red-600 text-xs font-bold rounded-full">
-                      <AlertTriangle size={11} />
-                      {d.incidentCount}
-                    </span>
-                  ) : (
-                    <span className="text-gray-300 text-xs">0</span>
-                  )}
+                    <span className="badge bg-red-50 text-red-600"><AlertTriangle size={11} />{d.incidentCount}</span>
+                  ) : <span className="text-ink-faint text-xs">0</span>}
                 </td>
-                <td className="py-3.5 px-4 text-right">
+                <td className="table-cell text-right">
                   <div className="flex items-center justify-end gap-1">
-                    <button onClick={() => handleEdit(d)} className="p-2 text-gray-400 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors" title="Modifier">
+                    <button onClick={() => handleEdit(d)} className="p-2 text-ink-muted hover:text-brand-700 hover:bg-brand-50 rounded-lg transition-colors" title="Modifier">
                       <Pencil size={15} />
                     </button>
-                    <button onClick={() => handleDelete(d)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer">
+                    <button onClick={() => handleDelete(d)} className="p-2 text-ink-muted hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Supprimer">
                       <Trash2 size={15} />
                     </button>
                   </div>
@@ -282,53 +232,30 @@ export default function Drivers() {
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr>
-                <td colSpan={5} className="py-12 text-center text-gray-400">
-                  {search ? 'Aucun resultat' : 'Aucun conducteur'}
-                </td>
-              </tr>
+              <tr><td colSpan={5} className="py-16 text-center text-ink-muted">{search ? 'Aucun resultat' : 'Aucun conducteur'}</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Edit modal */}
       {editing && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-5">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-modal w-full max-w-md p-6 space-y-5 animate-fade-in">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900">Modifier</h3>
-              <button onClick={() => setEditing(null)} className="p-1 hover:bg-gray-100 rounded-lg">
-                <X size={18} className="text-gray-400" />
-              </button>
+              <h3 className="text-lg font-bold text-ink">Modifier le conducteur</h3>
+              <button onClick={() => setEditing(null)} className="p-1.5 hover:bg-surface rounded-lg"><X size={18} className="text-ink-muted" /></button>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Nom complet</label>
-              <input
-                value={editForm.full_name}
-                onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
-                className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-              />
+              <label className="block text-xs font-semibold text-ink-secondary uppercase tracking-wider mb-2">Nom complet</label>
+              <input value={editForm.full_name} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })} className="input-field" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Telephone</label>
-              <input
-                value={editForm.phone}
-                onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
-              />
+              <label className="block text-xs font-semibold text-ink-secondary uppercase tracking-wider mb-2">Telephone</label>
+              <input value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} className="input-field" />
             </div>
-            <div className="flex gap-3 pt-2">
-              <button onClick={() => setEditing(null)} className="flex-1 px-4 py-2.5 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
-                Annuler
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-green-700 rounded-lg hover:bg-green-800 disabled:opacity-50"
-              >
-                {saving ? '...' : 'Enregistrer'}
-              </button>
+            <div className="flex gap-3 pt-1">
+              <button onClick={() => setEditing(null)} className="btn-secondary flex-1">Annuler</button>
+              <button onClick={handleSave} disabled={saving} className="btn-primary flex-1">{saving ? 'Sauvegarde...' : 'Enregistrer'}</button>
             </div>
           </div>
         </div>

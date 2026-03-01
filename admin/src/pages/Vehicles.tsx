@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Truck, Plus, Search, Calendar, X } from 'lucide-react';
+import { Truck, Plus, Search, Calendar, X, ChevronRight } from 'lucide-react';
 
 interface VehicleRow {
   id: string;
@@ -12,7 +12,6 @@ interface VehicleRow {
   driver: { full_name: string } | null;
 }
 
-// Auto-format plate: XX-XXX-XX
 function formatPlate(raw: string): string {
   const clean = raw.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   let result = '';
@@ -43,11 +42,12 @@ export default function Vehicles() {
   useEffect(() => { fetchVehicles(); }, []);
 
   const getCTStatus = (dateStr: string | null) => {
-    if (!dateStr) return { color: 'text-gray-400', bg: '' };
+    if (!dateStr) return { label: '--', color: 'text-ink-muted', bg: '' };
     const diff = Math.floor((new Date(dateStr).getTime() - Date.now()) / 86400000);
-    if (diff < 0) return { color: 'text-red-600 font-semibold', bg: 'bg-red-50' };
-    if (diff < 30) return { color: 'text-orange-600 font-medium', bg: 'bg-orange-50' };
-    return { color: 'text-green-600', bg: '' };
+    const formatted = new Date(dateStr).toLocaleDateString('fr-FR');
+    if (diff < 0) return { label: formatted, color: 'text-red-600 font-semibold', bg: 'bg-red-50 text-red-600' };
+    if (diff < 30) return { label: formatted, color: 'text-amber-600 font-medium', bg: 'bg-amber-50 text-amber-600' };
+    return { label: formatted, color: 'text-brand-700', bg: 'bg-brand-50 text-brand-700' };
   };
 
   const handleCreate = async () => {
@@ -77,102 +77,110 @@ export default function Vehicles() {
     ((v.driver as any)?.full_name ?? '').toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-700" /></div>;
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-brand-700/30 border-t-brand-700 rounded-full animate-spin" /></div>;
 
   return (
     <div className="space-y-5 pb-20 md:pb-0">
-      <div className="flex items-center justify-between">
+      <div className="page-header">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center">
-            <Truck size={20} className="text-green-700" />
+          <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center">
+            <Truck size={20} className="text-brand-700" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Vehicules</h1>
-            <p className="text-sm text-gray-500">{vehicles.length} vehicule{vehicles.length > 1 ? 's' : ''}</p>
+            <h1 className="page-title text-xl">{vehicles.length} vehicule{vehicles.length > 1 ? 's' : ''}</h1>
           </div>
         </div>
-        <button onClick={() => setShowModal(true)} className="flex items-center gap-2 px-4 py-2.5 bg-green-700 text-white rounded-lg text-sm font-medium hover:bg-green-800 shadow-sm">
+        <button onClick={() => setShowModal(true)} className="btn-primary">
           <Plus size={16} /> Nouveau
         </button>
       </div>
 
       <div className="relative">
-        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher..." className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none" />
+        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-ink-muted" />
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher par plaque, marque, conducteur..." className="input-field pl-11" />
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="card overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-gray-50/80 border-b border-gray-100">
-              <th className="py-3 px-4 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide">Plaque</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide hidden md:table-cell">Vehicule</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide">Conducteur</th>
-              <th className="py-3 px-4 text-left font-semibold text-gray-600 text-xs uppercase tracking-wide">CT</th>
+            <tr className="border-b border-border-light bg-surface/50">
+              <th className="table-header">Plaque</th>
+              <th className="table-header hidden md:table-cell">Vehicule</th>
+              <th className="table-header">Conducteur</th>
+              <th className="table-header">Controle technique</th>
+              <th className="table-header w-10"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-50">
+          <tbody className="divide-y divide-border-light">
             {filtered.map((v) => {
               const ct = getCTStatus(v.next_inspection_date);
               return (
-                <tr key={v.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="py-3.5 px-4">
-                    <Link to={`/vehicles/${v.id}`} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-50 text-green-700 text-xs font-bold rounded-md hover:bg-green-100 transition-colors">
+                <tr key={v.id} className="hover:bg-surface/60 transition-colors group">
+                  <td className="table-cell">
+                    <Link to={`/vehicles/${v.id}`} className="plate-badge">
                       <Truck size={12} /> {v.plate}
                     </Link>
                   </td>
-                  <td className="py-3.5 px-4 text-gray-600 hidden md:table-cell">{[v.brand, v.model].filter(Boolean).join(' ') || '—'}</td>
-                  <td className="py-3.5 px-4 text-gray-600">{(v.driver as any)?.full_name ?? <span className="text-gray-300">Non assigne</span>}</td>
-                  <td className={`py-3.5 px-4 ${ct.color}`}>
+                  <td className="table-cell text-ink-secondary hidden md:table-cell">{[v.brand, v.model].filter(Boolean).join(' ') || <span className="text-ink-faint">--</span>}</td>
+                  <td className="table-cell text-ink-secondary">{(v.driver as any)?.full_name ?? <span className="text-ink-faint">Non assigne</span>}</td>
+                  <td className="table-cell">
                     {v.next_inspection_date ? (
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs ${ct.bg}`}>
+                      <span className={`badge ${ct.bg}`}>
                         <Calendar size={11} />
-                        {new Date(v.next_inspection_date).toLocaleDateString('fr-FR')}
+                        {ct.label}
                       </span>
-                    ) : '—'}
+                    ) : <span className="text-ink-faint">--</span>}
+                  </td>
+                  <td className="table-cell">
+                    <Link to={`/vehicles/${v.id}`} className="text-ink-faint group-hover:text-ink-secondary transition-colors">
+                      <ChevronRight size={16} />
+                    </Link>
                   </td>
                 </tr>
               );
             })}
+            {filtered.length === 0 && (
+              <tr><td colSpan={5} className="py-16 text-center text-ink-muted">{search ? 'Aucun resultat' : 'Aucun vehicule'}</td></tr>
+            )}
           </tbody>
         </table>
       </div>
 
       {/* Modal creation */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-modal w-full max-w-md p-6 space-y-5 animate-fade-in">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900">Nouveau vehicule</h3>
-              <button onClick={() => setShowModal(false)} className="p-1 hover:bg-gray-100 rounded-lg"><X size={18} className="text-gray-400" /></button>
+              <h3 className="text-lg font-bold text-ink">Nouveau vehicule</h3>
+              <button onClick={() => setShowModal(false)} className="p-1.5 hover:bg-surface rounded-lg transition-colors"><X size={18} className="text-ink-muted" /></button>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Plaque d'immatriculation *</label>
+              <label className="block text-xs font-semibold text-ink-secondary uppercase tracking-wider mb-2">Plaque d'immatriculation *</label>
               <input
                 value={form.plate}
                 onChange={(e) => setForm({ ...form, plate: formatPlate(e.target.value) })}
                 placeholder="AA-123-BB"
                 maxLength={9}
-                className="w-full border border-gray-200 rounded-lg px-3.5 py-3 text-center text-lg font-bold tracking-widest uppercase focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                className="input-field text-center text-lg font-bold tracking-widest uppercase"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Marque</label>
-                <input value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} placeholder="Renault" className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none" />
+                <label className="block text-xs font-semibold text-ink-secondary uppercase tracking-wider mb-2">Marque</label>
+                <input value={form.brand} onChange={(e) => setForm({ ...form, brand: e.target.value })} placeholder="Renault" className="input-field" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Modele</label>
-                <input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} placeholder="Master" className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none" />
+                <label className="block text-xs font-semibold text-ink-secondary uppercase tracking-wider mb-2">Modele</label>
+                <input value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} placeholder="Master" className="input-field" />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Annee</label>
-              <input value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} placeholder="2024" className="w-full border border-gray-200 rounded-lg px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-green-500 outline-none" />
+              <label className="block text-xs font-semibold text-ink-secondary uppercase tracking-wider mb-2">Annee</label>
+              <input value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} placeholder="2024" className="input-field" />
             </div>
-            <div className="flex gap-3 pt-2">
-              <button onClick={() => setShowModal(false)} className="flex-1 px-4 py-2.5 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">Annuler</button>
-              <button onClick={handleCreate} disabled={saving || !form.plate} className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-green-700 rounded-lg hover:bg-green-800 disabled:opacity-50">{saving ? '...' : 'Creer'}</button>
+            <div className="flex gap-3 pt-1">
+              <button onClick={() => setShowModal(false)} className="btn-secondary flex-1">Annuler</button>
+              <button onClick={handleCreate} disabled={saving || !form.plate} className="btn-primary flex-1">{saving ? 'Creation...' : 'Creer'}</button>
             </div>
           </div>
         </div>

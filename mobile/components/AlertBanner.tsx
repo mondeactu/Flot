@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/auth.store';
+import { colors, spacing, radius, shadows } from '../constants/theme';
 
 export default function AlertBanner() {
   const [alertCount, setAlertCount] = useState(0);
@@ -52,27 +54,37 @@ export default function AlertBanner() {
     <TouchableOpacity
       style={styles.banner}
       onPress={handlePress}
-      accessibilityLabel={`${alertCount} alertes non traitées`}
+      accessibilityLabel={`${alertCount} alertes non traitees`}
       accessibilityRole="button"
     >
-      <Text style={styles.text}>
-        ⚠️ {alertCount} alerte{alertCount > 1 ? 's' : ''}
-      </Text>
+      <View style={styles.row}>
+        <Feather name="alert-triangle" size={16} color={colors.inkOnDark} />
+        <Text style={styles.text}>
+          {alertCount} alerte{alertCount > 1 ? 's' : ''}
+        </Text>
+      </View>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   banner: {
-    backgroundColor: '#D32F2F',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginHorizontal: 16,
-    marginVertical: 4,
+    backgroundColor: colors.error,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
+    marginHorizontal: spacing.lg,
+    marginVertical: spacing.xs,
+    ...shadows.card,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
   },
   text: {
-    color: '#fff',
+    color: colors.inkOnDark,
     fontSize: 14,
     fontWeight: '700',
     textAlign: 'center',

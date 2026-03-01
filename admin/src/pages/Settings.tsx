@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/auth.store';
 import { getStorageStats, exportPhotosAndCleanup, type StorageStats } from '../lib/storage';
+import { Settings2, Database, RefreshCw, Download, Save, Zap } from 'lucide-react';
 
 interface AlertSettings {
   id: string;
@@ -46,8 +47,8 @@ export default function Settings() {
         no_fill_alert_days: settings.no_fill_alert_days,
       }).eq('id', settings.id);
       if (error) throw error;
-      setMessage('success: Paramètres sauvegardés');
-    } catch { setMessage('error: Erreur'); }
+      setMessage('success:Parametres sauvegardes');
+    } catch { setMessage('error:Erreur de sauvegarde'); }
     finally { setSaving(false); }
   };
 
@@ -61,84 +62,105 @@ export default function Settings() {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (res.error) throw res.error;
-      setMessage('success: Seuils appliqués à tous les véhicules');
-    } catch { setMessage('error: Erreur'); }
+      setMessage('success:Seuils appliques a tous les vehicules');
+    } catch { setMessage('error:Erreur'); }
     finally { setApplying(false); }
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><p className="text-gray-500">Chargement...</p></div>;
+  if (loading) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-2 border-brand-700/30 border-t-brand-700 rounded-full animate-spin" /></div>;
 
   return (
     <div className="space-y-6 pb-20 md:pb-0 max-w-3xl">
-      <h1 className="text-2xl font-extrabold text-gray-800">Paramètres</h1>
-      {message && <p className={`text-sm ${message.startsWith('success:') ? 'text-green-600' : 'text-red-600'}`}>{message.replace(/^(success:|error:)/, '')}</p>}
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 bg-surface rounded-xl flex items-center justify-center border border-border-light">
+          <Settings2 size={20} className="text-ink-secondary" />
+        </div>
+        <h1 className="page-title text-xl">Parametres</h1>
+      </div>
+
+      {message && (
+        <div className={`text-sm px-4 py-3 rounded-xl font-medium animate-fade-in ${message.startsWith('success:') ? 'bg-brand-50 text-brand-700 border border-brand-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
+          {message.replace(/^(success:|error:)/, '')}
+        </div>
+      )}
 
       {/* Alert settings */}
       {settings && (
-        <div className="bg-white rounded-xl border p-6 space-y-4">
-          <h3 className="text-lg font-bold text-gray-800">Seuils d'alerte globaux</h3>
+        <div className="card p-6 space-y-5">
+          <div className="flex items-center gap-2.5">
+            <Zap size={18} className="text-amber-500" />
+            <h3 className="text-base font-bold text-ink">Seuils d'alerte globaux</h3>
+          </div>
 
-          {[
-            { label: 'CT : alerter J-X avant expiration (jours)', key: 'alert_inspection_days_before' as const },
-            { label: 'Entretien : alerter J-X avant date (jours)', key: 'alert_maintenance_days_before' as const },
-            { label: 'Entretien : alerter KM-X avant kilométrage', key: 'alert_maintenance_km_before' as const },
-            { label: 'Consommation : alerter si > X L/100km', key: 'fuel_alert_threshold_l100' as const },
-            { label: 'Sans plein : alerter après X jours', key: 'no_fill_alert_days' as const },
-          ].map((item) => (
-            <div key={item.key}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{item.label}</label>
-              <input
-                type="number"
-                step={item.key === 'fuel_alert_threshold_l100' ? '0.1' : '1'}
-                value={settings[item.key]}
-                onChange={(e) => setSettings({ ...settings, [item.key]: parseFloat(e.target.value) || 0 })}
-                className="w-full border rounded-lg px-3 py-2 text-sm max-w-xs"
-              />
-            </div>
-          ))}
+          <div className="space-y-4">
+            {[
+              { label: 'CT : alerter J-X avant expiration (jours)', key: 'alert_inspection_days_before' as const },
+              { label: 'Entretien : alerter J-X avant date (jours)', key: 'alert_maintenance_days_before' as const },
+              { label: 'Entretien : alerter KM-X avant kilometrage', key: 'alert_maintenance_km_before' as const },
+              { label: 'Consommation : alerter si > X L/100km', key: 'fuel_alert_threshold_l100' as const },
+              { label: 'Sans plein : alerter apres X jours', key: 'no_fill_alert_days' as const },
+            ].map((item) => (
+              <div key={item.key} className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                <label className="text-sm text-ink-secondary flex-1">{item.label}</label>
+                <input
+                  type="number"
+                  step={item.key === 'fuel_alert_threshold_l100' ? '0.1' : '1'}
+                  value={settings[item.key]}
+                  onChange={(e) => setSettings({ ...settings, [item.key]: parseFloat(e.target.value) || 0 })}
+                  className="input-field w-full md:w-32 text-center font-semibold"
+                />
+              </div>
+            ))}
+          </div>
 
-          <div className="flex gap-3">
-            <button onClick={saveSettings} disabled={saving} className="px-6 py-2 bg-green-700 text-white rounded-lg text-sm disabled:opacity-50">
-              {saving ? '...' : 'Sauvegarder'}
+          <div className="flex gap-3 pt-2">
+            <button onClick={saveSettings} disabled={saving} className="btn-primary">
+              <Save size={16} />
+              {saving ? 'Sauvegarde...' : 'Sauvegarder'}
             </button>
-            <button onClick={applyToAll} disabled={applying} className="px-6 py-2 bg-orange-500 text-white rounded-lg text-sm disabled:opacity-50">
-              {applying ? '...' : 'Appliquer à tous les véhicules'}
+            <button onClick={applyToAll} disabled={applying} className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 active:scale-[0.98] disabled:opacity-50 transition-all duration-200">
+              <Zap size={16} />
+              {applying ? 'Application...' : 'Appliquer a tous'}
             </button>
           </div>
         </div>
       )}
 
       {/* Storage management */}
-      <div className="bg-white rounded-xl border p-6 space-y-4">
+      <div className="card p-6 space-y-5">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-gray-800">Stockage Supabase</h3>
+          <div className="flex items-center gap-2.5">
+            <Database size={18} className="text-indigo-500" />
+            <h3 className="text-base font-bold text-ink">Stockage Supabase</h3>
+          </div>
           <button
             onClick={async () => {
               setStorageLoading(true);
               try { setStorageStats(await getStorageStats()); }
-              catch { setMessage('error: Erreur chargement stockage'); }
+              catch { setMessage('error:Erreur chargement stockage'); }
               finally { setStorageLoading(false); }
             }}
             disabled={storageLoading}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 disabled:opacity-50"
+            className="btn-secondary text-xs py-2 px-3"
           >
+            <RefreshCw size={14} className={storageLoading ? 'animate-spin' : ''} />
             {storageLoading ? 'Chargement...' : 'Actualiser'}
           </button>
         </div>
 
         {storageStats ? (
           <>
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Utilisation totale</span>
-                <span className={`font-bold ${storageStats.overThreshold ? 'text-orange-600' : 'text-green-600'}`}>
+                <span className="text-ink-secondary">Utilisation totale</span>
+                <span className={`font-bold ${storageStats.overThreshold ? 'text-amber-600' : 'text-brand-700'}`}>
                   {storageStats.totalMB} MB / 500 MB
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className="w-full bg-surface rounded-full h-2.5">
                 <div
-                  className={`h-3 rounded-full transition-all ${
-                    storageStats.overThreshold ? 'bg-orange-500' : 'bg-green-500'
+                  className={`h-2.5 rounded-full transition-all duration-500 ${
+                    storageStats.overThreshold ? 'bg-amber-500' : 'bg-brand-600'
                   }`}
                   style={{ width: `${Math.min((storageStats.totalMB / 500) * 100, 100)}%` }}
                 />
@@ -147,16 +169,16 @@ export default function Settings() {
 
             <div className="grid grid-cols-3 gap-3">
               {storageStats.buckets.map((b) => (
-                <div key={b.name} className="bg-gray-50 rounded-lg p-3 text-center">
-                  <p className="text-xs text-gray-500 capitalize">{b.name}</p>
-                  <p className="text-sm font-bold text-gray-800">{b.sizeMB} MB</p>
-                  <p className="text-xs text-gray-400">{b.fileCount} fichiers</p>
+                <div key={b.name} className="bg-surface rounded-xl p-3.5 text-center">
+                  <p className="text-[11px] text-ink-muted font-medium uppercase tracking-wide">{b.name}</p>
+                  <p className="text-lg font-bold text-ink mt-1">{b.sizeMB} <span className="text-xs font-normal text-ink-muted">MB</span></p>
+                  <p className="text-[11px] text-ink-muted">{b.fileCount} fichiers</p>
                 </div>
               ))}
             </div>
 
             {exporting && (
-              <p className="text-sm text-orange-600 font-medium">{exportProgress}</p>
+              <p className="text-sm text-amber-600 font-medium">{exportProgress}</p>
             )}
 
             <button
@@ -179,26 +201,30 @@ export default function Settings() {
                   document.body.removeChild(a);
                   URL.revokeObjectURL(url);
                   setStorageStats(await getStorageStats());
-                  setMessage('success: Export termine, stockage nettoye');
+                  setMessage('success:Export termine, stockage nettoye');
                 } catch {
-                  setMessage('error: Erreur export');
+                  setMessage('error:Erreur export');
                 } finally {
                   setExporting(false);
                   setExportProgress('');
                 }
               }}
               disabled={exporting}
-              className="w-full px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 disabled:opacity-50"
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-500 text-white rounded-xl text-sm font-semibold hover:bg-amber-600 active:scale-[0.98] disabled:opacity-50 transition-all duration-200"
             >
+              <Download size={16} />
               {exporting ? 'Export en cours...' : 'Exporter ZIP + nettoyer le stockage'}
             </button>
           </>
         ) : (
-          <p className="text-sm text-gray-500">Cliquez sur "Actualiser" pour voir l'utilisation du stockage.</p>
+          <div className="text-center py-6">
+            <Database size={32} className="mx-auto text-ink-faint mb-2" />
+            <p className="text-sm text-ink-muted">Cliquez sur "Actualiser" pour voir l'utilisation du stockage.</p>
+          </div>
         )}
       </div>
 
-      <p className="text-xs text-gray-400 text-center">Flot v1.0.0</p>
+      <p className="text-[11px] text-ink-faint text-center py-2">Flot v1.0</p>
     </div>
   );
 }

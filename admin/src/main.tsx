@@ -11,6 +11,7 @@ import Drivers from './pages/Drivers';
 import Alerts from './pages/Alerts';
 import Exports from './pages/Exports';
 import Settings from './pages/Settings';
+import { Truck, ArrowRight } from 'lucide-react';
 import './index.css';
 
 // Register service worker for PWA
@@ -42,48 +43,63 @@ function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <p className="text-5xl mb-3">🚛</p>
-          <h1 className="text-3xl font-extrabold text-green-700">Flot</h1>
-          <p className="text-gray-500 mt-2">Panel administrateur</p>
+    <div className="min-h-screen flex items-center justify-center bg-sidebar p-4">
+      <div className="w-full max-w-[400px]">
+        {/* Logo */}
+        <div className="text-center mb-10">
+          <div className="w-16 h-16 bg-brand-700 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-brand-700/30">
+            <Truck size={30} className="text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Flot</h1>
+          <p className="text-ink-muted text-sm mt-1.5">Gestion de flotte Saveurs et Vie</p>
         </div>
 
         {stateMessage && (
-          <div className="bg-green-50 text-green-700 text-sm p-3 rounded-lg mb-4">{stateMessage}</div>
+          <div className="bg-brand-700/10 border border-brand-700/20 text-brand-400 text-sm p-3.5 rounded-xl mb-5 text-center font-medium">{stateMessage}</div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-          {error && <div className="bg-red-50 text-red-700 text-sm p-3 rounded-lg border-l-4 border-red-500">{error}</div>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3.5 rounded-xl font-medium">{error}</div>
+          )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-2">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => { clearError(); setEmail(e.target.value); }}
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full bg-sidebar-hover border border-sidebar-border rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-ink-muted/60 focus:ring-2 focus:ring-brand-600/40 focus:border-brand-600 outline-none transition-all"
               placeholder="admin@saveursetvie.fr"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+            <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-2">Mot de passe</label>
             <input
               type="password"
               value={password}
               onChange={(e) => { clearError(); setPassword(e.target.value); }}
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full bg-sidebar-hover border border-sidebar-border rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-ink-muted/60 focus:ring-2 focus:ring-brand-600/40 focus:border-brand-600 outline-none transition-all"
             />
           </div>
 
-          <button type="submit" disabled={loading} className="w-full bg-green-700 text-white py-3 rounded-lg font-bold hover:bg-green-800 disabled:opacity-50">
-            {loading ? 'Connexion...' : 'Se connecter'}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-brand-700 text-white py-3.5 rounded-xl font-semibold text-sm hover:bg-brand-600 disabled:opacity-50 transition-all duration-200 mt-2 flex items-center justify-center gap-2 shadow-lg shadow-brand-700/20"
+          >
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>Se connecter <ArrowRight size={16} /></>
+            )}
           </button>
         </form>
+
+        <p className="text-center text-ink-muted/40 text-xs mt-8">Flot v1.0 — Panel administrateur</p>
       </div>
     </div>
   );
@@ -92,7 +108,11 @@ function LoginPage() {
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { session, profile, loading } = useAuthStore();
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center"><p className="text-gray-500">Chargement...</p></div>;
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-surface">
+      <div className="w-8 h-8 border-2 border-brand-700/30 border-t-brand-700 rounded-full animate-spin" />
+    </div>
+  );
   if (!session || !profile) return <Navigate to="/login" replace />;
   if (profile.role !== 'admin') return <Navigate to="/login" replace />;
 

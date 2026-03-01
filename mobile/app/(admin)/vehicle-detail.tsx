@@ -10,8 +10,10 @@ import {
   Alert,
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
 import AlertThresholdSheet from '../../components/AlertThresholdSheet';
+import { colors, spacing, radius, typography, shadows } from '../../constants/theme';
 
 interface Vehicle {
   id: string;
@@ -69,7 +71,7 @@ export default function VehicleDetailScreen() {
       .single();
 
     if (error) {
-      Alert.alert('Erreur', 'Véhicule introuvable');
+      Alert.alert('Erreur', 'Vehicule introuvable');
       return;
     }
     setVehicle(data as Vehicle);
@@ -104,7 +106,7 @@ export default function VehicleDetailScreen() {
         .eq('id', vehicle.id);
 
       if (error) throw error;
-      Alert.alert('✅', 'Véhicule mis à jour');
+      Alert.alert('Succes', 'Vehicule mis a jour');
     } catch (err) {
       Alert.alert('Erreur', 'Impossible de sauvegarder');
     } finally {
@@ -131,11 +133,11 @@ export default function VehicleDetailScreen() {
   };
 
   if (loading || !vehicle) {
-    return <View style={styles.center}><ActivityIndicator size="large" color="#2E7D32" /></View>;
+    return <View style={styles.center}><ActivityIndicator size="large" color={colors.brand} /></View>;
   }
 
   const tabs = [
-    { key: 'resume', label: 'Résumé' },
+    { key: 'resume', label: 'Resume' },
     { key: 'fills', label: 'Pleins' },
     { key: 'incidents', label: 'Incidents' },
   ] as const;
@@ -158,56 +160,58 @@ export default function VehicleDetailScreen() {
 
       {activeTab === 'resume' && (
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.field}>
-            <Text style={styles.label}>Marque</Text>
-            <TextInput style={styles.input} value={vehicle.brand ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, brand: t })} />
-          </View>
-          <View style={styles.field}>
-            <Text style={styles.label}>Modèle</Text>
-            <TextInput style={styles.input} value={vehicle.model ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, model: t })} />
-          </View>
-          <View style={styles.field}>
-            <Text style={styles.label}>Année</Text>
-            <TextInput style={styles.input} value={vehicle.year?.toString() ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, year: parseInt(t) || null })} keyboardType="number-pad" />
-          </View>
-
-          <View style={styles.fieldRow}>
-            <View style={styles.fieldFlex}>
-              <Text style={styles.label}>Prochain CT</Text>
-              <TextInput style={styles.input} value={vehicle.next_inspection_date ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, next_inspection_date: t })} placeholder="AAAA-MM-JJ" />
+          <View style={styles.card}>
+            <View style={styles.field}>
+              <Text style={styles.label}>Marque</Text>
+              <TextInput style={styles.input} value={vehicle.brand ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, brand: t })} />
             </View>
-            <TouchableOpacity style={styles.thresholdBtn} onPress={() => openThreshold('CT', 'alert_inspection_days_before', 'jours')}>
-              <Text>⚠️</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.fieldRow}>
-            <View style={styles.fieldFlex}>
-              <Text style={styles.label}>Prochain entretien (date)</Text>
-              <TextInput style={styles.input} value={vehicle.next_maintenance_date ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, next_maintenance_date: t })} placeholder="AAAA-MM-JJ" />
+            <View style={styles.field}>
+              <Text style={styles.label}>Modele</Text>
+              <TextInput style={styles.input} value={vehicle.model ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, model: t })} />
             </View>
-            <TouchableOpacity style={styles.thresholdBtn} onPress={() => openThreshold('Entretien (jours)', 'alert_maintenance_days_before', 'jours')}>
-              <Text>⚠️</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.fieldRow}>
-            <View style={styles.fieldFlex}>
-              <Text style={styles.label}>Prochain entretien (km)</Text>
-              <TextInput style={styles.input} value={vehicle.next_maintenance_km?.toString() ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, next_maintenance_km: parseInt(t) || null })} keyboardType="number-pad" />
+            <View style={styles.field}>
+              <Text style={styles.label}>Annee</Text>
+              <TextInput style={styles.input} value={vehicle.year?.toString() ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, year: parseInt(t) || null })} keyboardType="number-pad" />
             </View>
-            <TouchableOpacity style={styles.thresholdBtn} onPress={() => openThreshold('Entretien (km)', 'alert_maintenance_km_before', 'km')}>
-              <Text>⚠️</Text>
-            </TouchableOpacity>
-          </View>
 
-          <View style={styles.field}>
-            <Text style={styles.label}>Notes</Text>
-            <TextInput style={[styles.input, { minHeight: 80 }]} value={vehicle.notes ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, notes: t })} multiline />
+            <View style={styles.fieldRow}>
+              <View style={styles.fieldFlex}>
+                <Text style={styles.label}>Prochain CT</Text>
+                <TextInput style={styles.input} value={vehicle.next_inspection_date ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, next_inspection_date: t })} placeholder="AAAA-MM-JJ" placeholderTextColor={colors.inkFaint} />
+              </View>
+              <TouchableOpacity style={styles.thresholdBtn} onPress={() => openThreshold('CT', 'alert_inspection_days_before', 'jours')}>
+                <Feather name="alert-triangle" size={16} color={colors.warning} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <View style={styles.fieldFlex}>
+                <Text style={styles.label}>Prochain entretien (date)</Text>
+                <TextInput style={styles.input} value={vehicle.next_maintenance_date ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, next_maintenance_date: t })} placeholder="AAAA-MM-JJ" placeholderTextColor={colors.inkFaint} />
+              </View>
+              <TouchableOpacity style={styles.thresholdBtn} onPress={() => openThreshold('Entretien (jours)', 'alert_maintenance_days_before', 'jours')}>
+                <Feather name="alert-triangle" size={16} color={colors.warning} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.fieldRow}>
+              <View style={styles.fieldFlex}>
+                <Text style={styles.label}>Prochain entretien (km)</Text>
+                <TextInput style={styles.input} value={vehicle.next_maintenance_km?.toString() ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, next_maintenance_km: parseInt(t) || null })} keyboardType="number-pad" />
+              </View>
+              <TouchableOpacity style={styles.thresholdBtn} onPress={() => openThreshold('Entretien (km)', 'alert_maintenance_km_before', 'km')}>
+                <Feather name="alert-triangle" size={16} color={colors.warning} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.fieldLast}>
+              <Text style={styles.label}>Notes</Text>
+              <TextInput style={[styles.input, { minHeight: 80 }]} value={vehicle.notes ?? ''} onChangeText={(t) => setVehicle({ ...vehicle, notes: t })} multiline />
+            </View>
           </View>
 
           <TouchableOpacity style={[styles.saveButton, saving && { opacity: 0.5 }]} onPress={saveVehicle} disabled={saving}>
-            {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveText}>Enregistrer</Text>}
+            {saving ? <ActivityIndicator color={colors.inkOnDark} /> : <Text style={styles.saveText}>Enregistrer</Text>}
           </TouchableOpacity>
         </ScrollView>
       )}
@@ -215,15 +219,15 @@ export default function VehicleDetailScreen() {
       {activeTab === 'fills' && (
         <ScrollView contentContainerStyle={styles.content}>
           {fills.length === 0 ? (
-            <Text style={styles.emptyText}>Aucun plein enregistré</Text>
+            <Text style={styles.emptyText}>Aucun plein enregistre</Text>
           ) : (
             fills.map((f) => (
               <View key={f.id} style={styles.fillCard}>
                 <View style={styles.fillHeader}>
-                  <Text style={styles.fillPrice}>{Number(f.price_ttc).toFixed(2)} €</Text>
+                  <Text style={styles.fillPrice}>{Number(f.price_ttc).toFixed(2)} EUR</Text>
                   <Text style={styles.fillDate}>{new Date(f.filled_at).toLocaleDateString('fr-FR')}</Text>
                 </View>
-                <Text style={styles.fillDetail}>{f.km_at_fill.toLocaleString('fr-FR')} km — {f.liters ? `${Number(f.liters).toFixed(1)} L` : '—'} — {f.station_name ?? '—'}</Text>
+                <Text style={styles.fillDetail}>{f.km_at_fill.toLocaleString('fr-FR')} km -- {f.liters ? `${Number(f.liters).toFixed(1)} L` : '--'} -- {f.station_name ?? '--'}</Text>
               </View>
             ))
           )}
@@ -232,7 +236,7 @@ export default function VehicleDetailScreen() {
 
       {activeTab === 'incidents' && (
         <ScrollView contentContainerStyle={styles.content}>
-          <Text style={styles.emptyText}>Voir le détail des incidents sur le panel admin web.</Text>
+          <Text style={styles.emptyText}>Voir le detail des incidents sur le panel admin web.</Text>
         </ScrollView>
       )}
 
@@ -249,27 +253,69 @@ export default function VehicleDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', paddingTop: 50 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 24, fontWeight: '800', color: '#2E7D32', paddingHorizontal: 16, marginBottom: 8 },
-  tabBar: { flexDirection: 'row', paddingHorizontal: 16, gap: 8, marginBottom: 8 },
-  tab: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, backgroundColor: '#E0E0E0' },
-  activeTab: { backgroundColor: '#2E7D32' },
-  tabText: { fontSize: 14, fontWeight: '600', color: '#555' },
-  activeTabText: { color: '#fff' },
-  content: { padding: 16, paddingBottom: 40 },
-  field: { marginBottom: 14 },
-  fieldRow: { flexDirection: 'row', alignItems: 'flex-end', marginBottom: 14, gap: 8 },
+  container: { flex: 1, backgroundColor: colors.bg, paddingTop: 50 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+  title: { ...typography.h1, color: colors.ink, paddingHorizontal: spacing.lg, marginBottom: spacing.sm },
+  tabBar: { flexDirection: 'row', paddingHorizontal: spacing.lg, gap: spacing.sm, marginBottom: spacing.sm },
+  tab: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radius.full,
+    backgroundColor: colors.border,
+  },
+  activeTab: { backgroundColor: colors.brand },
+  tabText: { fontSize: 14, fontWeight: '600', color: colors.inkSecondary },
+  activeTabText: { color: colors.inkOnDark },
+  content: { padding: spacing.lg, paddingBottom: 40 },
+  card: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    ...shadows.card,
+  },
+  field: { marginBottom: spacing.lg },
+  fieldLast: { marginBottom: 0 },
+  fieldRow: { flexDirection: 'row', alignItems: 'flex-end', marginBottom: spacing.lg, gap: spacing.sm },
   fieldFlex: { flex: 1 },
-  label: { fontSize: 13, fontWeight: '600', color: '#555', marginBottom: 4 },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15, color: '#333' },
-  thresholdBtn: { padding: 10, backgroundColor: '#FFF8E1', borderRadius: 8, borderWidth: 1, borderColor: '#FFB300' },
-  saveButton: { backgroundColor: '#2E7D32', paddingVertical: 14, borderRadius: 10, alignItems: 'center', marginTop: 8 },
-  saveText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  emptyText: { fontSize: 15, color: '#888', textAlign: 'center', marginTop: 20 },
-  fillCard: { backgroundColor: '#fff', padding: 12, borderRadius: 8, marginBottom: 8, borderLeftWidth: 3, borderLeftColor: '#2E7D32' },
+  label: { ...typography.caption, color: colors.inkSecondary, marginBottom: spacing.xs },
+  input: {
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.borderInput,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    ...typography.body,
+    color: colors.ink,
+  },
+  thresholdBtn: {
+    padding: spacing.md,
+    backgroundColor: colors.warningBg,
+    borderRadius: radius.sm,
+    borderWidth: 1,
+    borderColor: colors.warning,
+  },
+  saveButton: {
+    backgroundColor: colors.brand,
+    paddingVertical: spacing.lg,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    marginTop: spacing.lg,
+    ...shadows.card,
+  },
+  saveText: { color: colors.inkOnDark, fontSize: 16, fontWeight: '700' },
+  emptyText: { ...typography.body, color: colors.inkMuted, textAlign: 'center', marginTop: spacing.xl },
+  fillCard: {
+    backgroundColor: colors.bgCard,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    marginBottom: spacing.sm,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.brand,
+    ...shadows.card,
+  },
   fillHeader: { flexDirection: 'row', justifyContent: 'space-between' },
-  fillPrice: { fontSize: 16, fontWeight: '700', color: '#333' },
-  fillDate: { fontSize: 13, color: '#888' },
-  fillDetail: { fontSize: 13, color: '#666', marginTop: 4 },
+  fillPrice: { fontSize: 16, fontWeight: '700', color: colors.ink },
+  fillDate: { ...typography.caption, color: colors.inkSecondary },
+  fillDetail: { ...typography.caption, color: colors.inkSecondary, marginTop: spacing.xs },
 });

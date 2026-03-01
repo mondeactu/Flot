@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Download, X } from 'lucide-react';
 import { getStorageStats, exportPhotosAndCleanup, type StorageStats } from '../lib/storage';
 
 export default function StorageBanner() {
@@ -10,7 +10,6 @@ export default function StorageBanner() {
 
   useEffect(() => {
     getStorageStats().then(setStats).catch(console.error);
-    // Refresh every 30 minutes
     const interval = setInterval(() => {
       getStorageStats().then(setStats).catch(console.error);
     }, 30 * 60 * 1000);
@@ -28,7 +27,6 @@ export default function StorageBanner() {
     setProgress('Demarrage...');
     try {
       const blob = await exportPhotosAndCleanup((msg) => setProgress(msg));
-      // Download the ZIP
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -37,7 +35,6 @@ export default function StorageBanner() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      // Refresh stats
       const newStats = await getStorageStats();
       setStats(newStats);
       setProgress('');
@@ -52,35 +49,32 @@ export default function StorageBanner() {
   if (!stats || !stats.overThreshold || dismissed) return null;
 
   return (
-    <div className="bg-orange-50 border border-orange-300 rounded-lg px-4 py-3 mx-4 mt-3 md:mx-6">
+    <div className="bg-amber-50 border-b border-amber-200 px-4 py-3 md:px-6">
       <div className="flex items-start gap-3">
-        <span className="flex-shrink-0"><AlertTriangle size={22} className="text-orange-600" /></span>
+        <div className="flex-shrink-0 w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
+          <AlertTriangle size={16} className="text-amber-600" />
+        </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-orange-800">
+          <p className="text-sm font-semibold text-amber-800">
             Stockage presque plein : {stats.totalMB} MB / 500 MB
           </p>
-          <p className="text-xs text-orange-700 mt-1">
-            {stats.buckets.map((b) => `${b.name}: ${b.sizeMB} MB (${b.fileCount} fichiers)`).join(' · ')}
+          <p className="text-[11px] text-amber-700 mt-0.5">
+            {stats.buckets.map((b) => `${b.name}: ${b.sizeMB} MB`).join(' · ')}
           </p>
-          {exporting && (
-            <p className="text-xs text-orange-600 mt-1 font-medium">{progress}</p>
-          )}
+          {exporting && <p className="text-xs text-amber-600 mt-1 font-medium">{progress}</p>}
           <div className="flex gap-2 mt-2">
-            <button
-              onClick={handleExport}
-              disabled={exporting}
-              className="px-3 py-1.5 bg-orange-600 text-white text-xs font-medium rounded hover:bg-orange-700 disabled:opacity-50"
-            >
-              {exporting ? 'Export en cours...' : 'Exporter ZIP + nettoyer'}
+            <button onClick={handleExport} disabled={exporting} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 text-white text-xs font-semibold rounded-lg hover:bg-amber-700 disabled:opacity-50 transition-colors">
+              <Download size={12} />
+              {exporting ? 'Export...' : 'Exporter ZIP + nettoyer'}
             </button>
-            <button
-              onClick={() => setDismissed(true)}
-              className="px-3 py-1.5 text-orange-700 text-xs font-medium rounded border border-orange-300 hover:bg-orange-100"
-            >
+            <button onClick={() => setDismissed(true)} className="px-3 py-1.5 text-amber-700 text-xs font-medium rounded-lg border border-amber-300 hover:bg-amber-100 transition-colors">
               Plus tard
             </button>
           </div>
         </div>
+        <button onClick={() => setDismissed(true)} className="flex-shrink-0 p-1 hover:bg-amber-100 rounded-lg transition-colors">
+          <X size={14} className="text-amber-500" />
+        </button>
       </div>
     </div>
   );

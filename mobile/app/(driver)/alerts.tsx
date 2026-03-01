@@ -7,8 +7,10 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/auth.store';
+import { colors, spacing, radius, typography, shadows } from '../../constants/theme';
 
 interface AlertItem {
   id: string;
@@ -18,16 +20,16 @@ interface AlertItem {
   acknowledged: boolean;
 }
 
-const TYPE_ICONS: Record<string, string> = {
-  ct_expiry: '📋',
-  maintenance_due: '🔧',
-  high_consumption: '⛽',
-  no_fill: '⛽',
-  document_expiry: '📄',
-  custom_reminder: '📌',
-  replacement_ending: '🔄',
-  monthly_report: '📊',
-  incident: '🚨',
+const TYPE_ICONS: Record<string, keyof typeof Feather.glyphMap> = {
+  ct_expiry: 'clipboard',
+  maintenance_due: 'tool',
+  high_consumption: 'droplet',
+  no_fill: 'droplet',
+  document_expiry: 'file',
+  custom_reminder: 'bookmark',
+  replacement_ending: 'refresh-cw',
+  monthly_report: 'bar-chart-2',
+  incident: 'alert-octagon',
 };
 
 export default function DriverAlertsScreen() {
@@ -77,21 +79,26 @@ export default function DriverAlertsScreen() {
     });
   };
 
-  const renderAlert = ({ item }: { item: AlertItem }) => (
-    <View style={[styles.alertCard, item.acknowledged && styles.alertAcknowledged]}>
-      <Text style={styles.alertIcon}>{TYPE_ICONS[item.type] ?? '⚠️'}</Text>
-      <View style={styles.alertContent}>
-        <Text style={styles.alertMessage}>{item.message}</Text>
-        <Text style={styles.alertDate}>{formatDate(item.triggered_at)}</Text>
+  const renderAlert = ({ item }: { item: AlertItem }) => {
+    const iconName = TYPE_ICONS[item.type] ?? 'alert-triangle';
+    return (
+      <View style={[styles.alertCard, item.acknowledged && styles.alertAcknowledged]}>
+        <View style={[styles.iconContainer, item.acknowledged && styles.iconContainerAcknowledged]}>
+          <Feather name={iconName} size={20} color={item.acknowledged ? colors.inkMuted : colors.warning} />
+        </View>
+        <View style={styles.alertContent}>
+          <Text style={styles.alertMessage}>{item.message}</Text>
+          <Text style={styles.alertDate}>{formatDate(item.triggered_at)}</Text>
+        </View>
+        {!item.acknowledged && <View style={styles.dot} />}
       </View>
-      {!item.acknowledged && <View style={styles.dot} />}
-    </View>
-  );
+    );
+  };
 
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#2E7D32" />
+        <ActivityIndicator size="large" color={colors.brand} />
       </View>
     );
   }
@@ -103,7 +110,7 @@ export default function DriverAlertsScreen() {
         data={alerts}
         renderItem={renderAlert}
         keyExtractor={(item) => item.id}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2E7D32" />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.brand} />}
         ListEmptyComponent={
           <View style={styles.empty}>
             <Text style={styles.emptyText}>Aucune alerte</Text>
@@ -115,29 +122,41 @@ export default function DriverAlertsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 20, fontWeight: '700', color: '#333', padding: 16, paddingBottom: 8 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+  title: { ...typography.h2, color: colors.ink, padding: spacing.lg, paddingBottom: spacing.sm },
   alertCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    marginHorizontal: 16,
-    marginVertical: 4,
-    padding: 14,
-    borderRadius: 10,
+    backgroundColor: colors.bgCard,
+    marginHorizontal: spacing.lg,
+    marginVertical: spacing.xs,
+    padding: spacing.lg,
+    borderRadius: radius.md,
     borderLeftWidth: 4,
-    borderLeftColor: '#FF9800',
+    borderLeftColor: colors.warning,
+    ...shadows.card,
   },
   alertAcknowledged: {
     opacity: 0.6,
-    borderLeftColor: '#E0E0E0',
+    borderLeftColor: colors.border,
   },
-  alertIcon: { fontSize: 24, marginRight: 12 },
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.sm,
+    backgroundColor: colors.warningBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
+  },
+  iconContainerAcknowledged: {
+    backgroundColor: colors.borderLight,
+  },
   alertContent: { flex: 1 },
-  alertMessage: { fontSize: 14, color: '#333', fontWeight: '500' },
-  alertDate: { fontSize: 12, color: '#888', marginTop: 4 },
-  dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: '#D32F2F' },
+  alertMessage: { ...typography.bodyMedium, color: colors.ink },
+  alertDate: { ...typography.caption, color: colors.inkSecondary, marginTop: spacing.xs },
+  dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.error },
   empty: { padding: 40, alignItems: 'center' },
-  emptyText: { fontSize: 16, color: '#888' },
+  emptyText: { ...typography.body, color: colors.inkMuted },
 });

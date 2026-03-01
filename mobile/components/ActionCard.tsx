@@ -1,8 +1,9 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, type ViewStyle } from 'react-native';
+import { TouchableOpacity, Text, View, StyleSheet, type ViewStyle } from 'react-native';
+import { colors, spacing, radius, shadows } from '../constants/theme';
 
 interface ActionCardProps {
-  emoji: string;
+  icon: React.ReactNode;
   label: string;
   onPress: () => void;
   color?: string;
@@ -11,10 +12,10 @@ interface ActionCardProps {
 }
 
 export default function ActionCard({
-  emoji,
+  icon,
   label,
   onPress,
-  color = '#2E7D32',
+  color = colors.brand,
   style,
   selected = false,
 }: ActionCardProps) {
@@ -22,7 +23,7 @@ export default function ActionCard({
     <TouchableOpacity
       style={[
         styles.card,
-        { borderColor: selected ? color : '#E0E0E0' },
+        { borderColor: selected ? color : colors.border },
         selected && { backgroundColor: `${color}10` },
         style,
       ]}
@@ -30,7 +31,7 @@ export default function ActionCard({
       accessibilityLabel={label}
       accessibilityRole="button"
     >
-      <Text style={styles.emoji}>{emoji}</Text>
+      <View style={styles.iconContainer}>{icon}</View>
       <Text style={[styles.label, selected && { color, fontWeight: '700' }]}>{label}</Text>
     </TouchableOpacity>
   );
@@ -40,20 +41,26 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: colors.bgCard,
     borderWidth: 2,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    marginVertical: 4,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.lg,
+    marginVertical: spacing.xs,
+    ...shadows.card,
   },
-  emoji: {
-    fontSize: 24,
-    marginRight: 12,
+  iconContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.sm,
+    backgroundColor: colors.bg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
   },
   label: {
     fontSize: 16,
-    color: '#333',
+    color: colors.ink,
     fontWeight: '500',
     flex: 1,
   },

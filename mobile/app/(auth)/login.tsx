@@ -12,19 +12,15 @@ import {
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../stores/auth.store';
+import { colors, radius, spacing } from '../../constants/theme';
 
 type LoginMode = 'driver' | 'admin';
 
-// Auto-format plate: AB-123-CD (XX-XXX-XX)
 function formatPlate(raw: string): string {
-  // Remove everything that's not alphanumeric
   const clean = raw.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
   let result = '';
   for (let i = 0; i < clean.length && i < 7; i++) {
-    // Add dashes after position 2 and 5
-    if (i === 2 || i === 5) {
-      result += '-';
-    }
+    if (i === 2 || i === 5) result += '-';
     result += clean[i];
   }
   return result;
@@ -74,10 +70,10 @@ export default function LoginScreen() {
         {/* Logo */}
         <View style={styles.logoContainer}>
           <View style={styles.logoIcon}>
-            <Feather name="truck" size={32} color="#fff" />
+            <Feather name="truck" size={28} color="#fff" />
           </View>
           <Text style={styles.logoText}>Flot</Text>
-          <Text style={styles.subtitle}>Gestion de flotte</Text>
+          <Text style={styles.subtitle}>Gestion de flotte Saveurs et Vie</Text>
         </View>
 
         {/* Mode Toggle */}
@@ -85,26 +81,25 @@ export default function LoginScreen() {
           <TouchableOpacity
             style={[styles.toggleBtn, mode === 'driver' && styles.toggleActive]}
             onPress={() => { setMode('driver'); clearError(); }}
-            accessibilityLabel="Mode conducteur"
+            activeOpacity={0.7}
           >
-            <Text style={[styles.toggleText, mode === 'driver' && styles.toggleTextActive]}>
-              Conducteur
-            </Text>
+            <Feather name="truck" size={14} color={mode === 'driver' ? colors.brand : colors.inkMuted} style={{ marginRight: 6 }} />
+            <Text style={[styles.toggleText, mode === 'driver' && styles.toggleTextActive]}>Conducteur</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.toggleBtn, mode === 'admin' && styles.toggleActive]}
             onPress={() => { setMode('admin'); clearError(); }}
-            accessibilityLabel="Mode administrateur"
+            activeOpacity={0.7}
           >
-            <Text style={[styles.toggleText, mode === 'admin' && styles.toggleTextActive]}>
-              Admin
-            </Text>
+            <Feather name="shield" size={14} color={mode === 'admin' ? colors.brand : colors.inkMuted} style={{ marginRight: 6 }} />
+            <Text style={[styles.toggleText, mode === 'admin' && styles.toggleTextActive]}>Admin</Text>
           </TouchableOpacity>
         </View>
 
         {/* Error */}
         {error && (
           <View style={styles.errorBanner}>
+            <Feather name="alert-circle" size={16} color={colors.error} />
             <Text style={styles.errorText}>{error}</Text>
           </View>
         )}
@@ -113,26 +108,25 @@ export default function LoginScreen() {
         <View style={styles.form} key={mode}>
           {mode === 'driver' ? (
             <View>
-              <Text style={styles.label}>Plaque d'immatriculation</Text>
+              <Text style={styles.label}>PLAQUE D'IMMATRICULATION</Text>
               <TextInput
                 key="plate-input"
                 style={styles.plateInput}
                 value={plate}
                 onChangeText={handlePlateChange}
                 placeholder="AA-123-BB"
-                placeholderTextColor="#bbb"
+                placeholderTextColor={colors.inkFaint}
                 autoCapitalize="characters"
                 autoCorrect={false}
                 maxLength={9}
-                accessibilityLabel="Plaque d'immatriculation"
               />
               {plate.length > 0 && plate.length < 9 && (
-                <Text style={styles.plateHint}>Saisissez votre plaque complète</Text>
+                <Text style={styles.plateHint}>Saisissez votre plaque complete</Text>
               )}
             </View>
           ) : (
             <View>
-              <Text style={styles.label}>Email</Text>
+              <Text style={styles.label}>EMAIL</Text>
               <TextInput
                 key="email-input"
                 style={styles.input}
@@ -142,12 +136,11 @@ export default function LoginScreen() {
                 autoCapitalize="none"
                 autoCorrect={false}
                 placeholder="votre@email.com"
-                placeholderTextColor="#999"
-                accessibilityLabel="Adresse email"
+                placeholderTextColor={colors.inkMuted}
                 editable={true}
               />
 
-              <Text style={styles.label}>Mot de passe</Text>
+              <Text style={[styles.label, { marginTop: spacing.lg }]}>MOT DE PASSE</Text>
               <TextInput
                 key="password-input"
                 style={styles.input}
@@ -155,8 +148,7 @@ export default function LoginScreen() {
                 onChangeText={(t) => { clearError(); setPassword(t); }}
                 secureTextEntry
                 placeholder="Votre mot de passe"
-                placeholderTextColor="#999"
-                accessibilityLabel="Mot de passe"
+                placeholderTextColor={colors.inkMuted}
                 editable={true}
               />
             </View>
@@ -166,17 +158,22 @@ export default function LoginScreen() {
             style={[styles.loginButton, (!canSubmit || loading) && styles.loginDisabled]}
             onPress={handleLogin}
             disabled={loading || !canSubmit}
-            accessibilityLabel="Se connecter"
+            activeOpacity={0.8}
           >
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.loginText}>
-                {mode === 'driver' ? 'Accéder à mon véhicule' : 'Se connecter'}
-              </Text>
+              <View style={styles.loginInner}>
+                <Text style={styles.loginText}>
+                  {mode === 'driver' ? 'Acceder a mon vehicule' : 'Se connecter'}
+                </Text>
+                <Feather name="arrow-right" size={18} color="#fff" />
+              </View>
             )}
           </TouchableOpacity>
         </View>
+
+        <Text style={styles.version}>Flot v1.0</Text>
       </View>
     </KeyboardAvoidingView>
   );
@@ -185,7 +182,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.bgDark,
   },
   inner: {
     flex: 1,
@@ -194,119 +191,134 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 40,
   },
   logoIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 16,
-    backgroundColor: '#2E7D32',
-    alignItems: 'center' as const,
-    justifyContent: 'center' as const,
-    marginBottom: 12,
+    width: 60,
+    height: 60,
+    borderRadius: radius.lg,
+    backgroundColor: colors.brand,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
   },
   logoText: {
-    fontSize: 40,
+    fontSize: 36,
     fontWeight: '800',
-    color: '#2E7D32',
+    color: '#fff',
+    letterSpacing: -1,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 14,
+    color: colors.inkMuted,
     marginTop: 4,
   },
   toggleContainer: {
     flexDirection: 'row',
-    backgroundColor: '#f0f0f0',
-    borderRadius: 12,
+    backgroundColor: colors.bgDarkHover,
+    borderRadius: radius.md,
     padding: 4,
-    marginBottom: 20,
+    marginBottom: 24,
   },
   toggleBtn: {
     flex: 1,
     paddingVertical: 12,
-    borderRadius: 10,
+    borderRadius: radius.sm,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   toggleActive: {
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 3,
-    elevation: 2,
+    backgroundColor: colors.bgDark,
+    borderWidth: 1,
+    borderColor: '#3A3C4E',
   },
   toggleText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
-    color: '#888',
+    color: colors.inkMuted,
   },
   toggleTextActive: {
-    color: '#2E7D32',
+    color: '#fff',
   },
   errorBanner: {
-    backgroundColor: '#FFEBEE',
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.2)',
+    padding: 14,
+    borderRadius: radius.md,
     marginBottom: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#D32F2F',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
   },
   errorText: {
-    color: '#D32F2F',
+    color: '#FCA5A5',
     fontSize: 14,
     fontWeight: '500',
+    flex: 1,
   },
   form: {},
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#555',
-    marginBottom: 6,
-    marginTop: 12,
+    fontSize: 11,
+    fontWeight: '700',
+    color: colors.inkMuted,
+    marginBottom: 8,
+    letterSpacing: 1,
   },
   input: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.bgDarkHover,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 10,
+    borderColor: '#3A3C4E',
+    borderRadius: radius.md,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    fontSize: 16,
-    color: '#333',
+    fontSize: 15,
+    color: '#fff',
   },
   plateInput: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.bgDarkHover,
     borderWidth: 2,
-    borderColor: '#2E7D32',
-    borderRadius: 10,
+    borderColor: colors.brand,
+    borderRadius: radius.md,
     paddingHorizontal: 16,
     paddingVertical: 18,
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '800',
-    color: '#2E7D32',
+    color: '#fff',
     textAlign: 'center',
-    letterSpacing: 3,
+    letterSpacing: 4,
   },
   plateHint: {
     fontSize: 12,
-    color: '#999',
+    color: colors.inkMuted,
     textAlign: 'center',
-    marginTop: 6,
+    marginTop: 8,
   },
   loginButton: {
-    backgroundColor: '#2E7D32',
+    backgroundColor: colors.brand,
     paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: radius.md,
     alignItems: 'center',
-    marginTop: 24,
+    marginTop: 28,
   },
   loginDisabled: {
-    opacity: 0.5,
+    opacity: 0.4,
+  },
+  loginInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   loginText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
+  },
+  version: {
+    textAlign: 'center',
+    color: 'rgba(160, 164, 184, 0.3)',
+    fontSize: 11,
+    marginTop: 32,
   },
 });

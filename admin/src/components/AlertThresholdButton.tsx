@@ -64,27 +64,27 @@ export default function AlertThresholdButton({
       </button>
 
       {open && (
-        <div className="absolute z-10 mt-2 right-0 bg-white border border-gray-200 rounded-lg shadow-lg p-4 w-64">
-          <p className="text-sm font-semibold text-gray-700 mb-1">{label}</p>
-          <p className="text-xs text-gray-500 mb-3">Seuil d'alerte ({unit})</p>
+        <div className="absolute z-10 mt-2 right-0 bg-surface-card border border-border rounded-xl shadow-elevated p-4 w-64 animate-fade-in">
+          <p className="text-sm font-semibold text-ink mb-1">{label}</p>
+          <p className="text-xs text-ink-muted mb-3">Seuil d'alerte ({unit})</p>
           <input
             type="number"
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 text-sm mb-3"
+            className="input-field mb-3"
             placeholder={`Ex: ${currentValue ?? 30}`}
           />
           <div className="flex gap-2">
             <button
               onClick={() => setOpen(false)}
-              className="flex-1 px-3 py-2 text-sm bg-gray-100 rounded hover:bg-gray-200"
+              className="btn-secondary flex-1 text-sm"
             >
               Annuler
             </button>
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 px-3 py-2 text-sm bg-green-700 text-white rounded hover:bg-green-800 disabled:opacity-50"
+              className="btn-primary flex-1 text-sm"
             >
               {saving ? '...' : 'Enregistrer'}
             </button>

@@ -9,20 +9,22 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { useAuthStore } from '../../stores/auth.store';
 import { supabase } from '../../lib/supabase';
 import ActionCard from '../../components/ActionCard';
 import PhotoCapture from '../../components/PhotoCapture';
 import { addToQueue, savePhotoLocally } from '../../lib/offline-queue';
 import NetInfo from '@react-native-community/netinfo';
+import { colors, spacing, radius, typography, shadows } from '../../constants/theme';
 
 const INCIDENT_TYPES = [
-  { key: 'panne', emoji: '🔧', label: 'Panne mécanique' },
-  { key: 'accident', emoji: '💥', label: 'Accident / choc' },
-  { key: 'degat', emoji: '🔍', label: 'Dégât constaté' },
-  { key: 'amende', emoji: '📋', label: 'Amende' },
-  { key: 'pneu', emoji: '🔴', label: 'Pneu crevé' },
-  { key: 'autre', emoji: '📝', label: 'Autre' },
+  { key: 'panne', icon: 'tool' as const, label: 'Panne mecanique' },
+  { key: 'accident', icon: 'zap' as const, label: 'Accident / choc' },
+  { key: 'degat', icon: 'search' as const, label: 'Degat constate' },
+  { key: 'amende', icon: 'file-text' as const, label: 'Amende' },
+  { key: 'pneu', icon: 'circle' as const, label: 'Pneu creve' },
+  { key: 'autre', icon: 'edit-3' as const, label: 'Autre' },
 ] as const;
 
 export default function IncidentScreen() {
@@ -40,7 +42,7 @@ export default function IncidentScreen() {
 
   const handleSubmit = async () => {
     if (!selectedType || !description.trim() || !user?.id || !vehicle?.id) {
-      Alert.alert('Erreur', 'Veuillez sélectionner un type et saisir une description.');
+      Alert.alert('Erreur', 'Veuillez selectionner un type et saisir une description.');
       return;
     }
 
@@ -95,7 +97,7 @@ export default function IncidentScreen() {
         );
       }
 
-      Alert.alert('✅ Signalement envoyé', 'L\'administrateur sera notifié.');
+      Alert.alert('Signalement envoye', 'L\'administrateur sera notifie.');
       resetForm();
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Erreur lors de l\'envoi';
@@ -130,17 +132,17 @@ export default function IncidentScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Signaler un problème</Text>
+      <Text style={styles.title}>Signaler un probleme</Text>
 
       <Text style={styles.sectionTitle}>Type</Text>
       {INCIDENT_TYPES.map((type) => (
         <ActionCard
           key={type.key}
-          emoji={type.emoji}
+          icon={<Feather name={type.icon} size={20} color={selectedType === type.key ? colors.error : colors.inkSecondary} />}
           label={type.label}
           selected={selectedType === type.key}
           onPress={() => setSelectedType(type.key)}
-          color="#D32F2F"
+          color={colors.error}
         />
       ))}
 
@@ -151,6 +153,7 @@ export default function IncidentScreen() {
           value={incidentDate}
           onChangeText={setIncidentDate}
           placeholder="AAAA-MM-JJ"
+          placeholderTextColor={colors.inkFaint}
           accessibilityLabel="Date de l'incident"
         />
       </View>
@@ -161,21 +164,23 @@ export default function IncidentScreen() {
           style={[styles.input, styles.textArea]}
           value={description}
           onChangeText={setDescription}
-          placeholder="Décrivez le problème..."
+          placeholder="Decrivez le probleme..."
+          placeholderTextColor={colors.inkFaint}
           multiline
           numberOfLines={4}
-          accessibilityLabel="Description du problème"
+          accessibilityLabel="Description du probleme"
         />
       </View>
 
       <View style={styles.field}>
-        <Text style={styles.label}>Montant (€) {selectedType === 'amende' ? '*' : '(optionnel)'}</Text>
+        <Text style={styles.label}>Montant (EUR) {selectedType === 'amende' ? '*' : '(optionnel)'}</Text>
         <TextInput
           style={styles.input}
           value={amount}
           onChangeText={setAmount}
           keyboardType="decimal-pad"
           placeholder="0.00"
+          placeholderTextColor={colors.inkFaint}
           accessibilityLabel="Montant"
         />
       </View>
@@ -185,9 +190,13 @@ export default function IncidentScreen() {
         onPress={() => setShowCamera(true)}
         accessibilityLabel="Ajouter une photo"
       >
-        <Text style={styles.photoButtonText}>
-          {photoBase64 ? '📷 Photo prise ✅' : '📷 Ajouter une photo (optionnel)'}
-        </Text>
+        <View style={styles.photoButtonRow}>
+          <Feather name="camera" size={18} color={colors.inkSecondary} />
+          <Text style={styles.photoButtonText}>
+            {photoBase64 ? 'Photo prise' : 'Ajouter une photo (optionnel)'}
+          </Text>
+          {photoBase64 ? <Feather name="check-circle" size={18} color={colors.brand} /> : null}
+        </View>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -197,7 +206,7 @@ export default function IncidentScreen() {
         accessibilityLabel="Envoyer le signalement"
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.inkOnDark} />
         ) : (
           <Text style={styles.submitText}>Envoyer le signalement</Text>
         )}
@@ -207,17 +216,80 @@ export default function IncidentScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  content: { padding: 16, paddingBottom: 40 },
-  title: { fontSize: 22, fontWeight: '700', color: '#333', marginBottom: 16 },
-  sectionTitle: { fontSize: 16, fontWeight: '600', color: '#555', marginBottom: 8, marginTop: 8 },
-  field: { marginTop: 16 },
-  label: { fontSize: 14, fontWeight: '600', color: '#555', marginBottom: 6 },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, color: '#333' },
-  textArea: { minHeight: 100, textAlignVertical: 'top' },
-  photoButton: { backgroundColor: '#E0E0E0', paddingVertical: 14, borderRadius: 10, alignItems: 'center', marginTop: 16 },
-  photoButtonText: { fontSize: 16, fontWeight: '600', color: '#555' },
-  submitButton: { backgroundColor: '#D32F2F', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginTop: 20 },
-  submitDisabled: { opacity: 0.5 },
-  submitText: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  container: {
+    flex: 1,
+    backgroundColor: colors.bg,
+  },
+  content: {
+    padding: spacing.lg,
+    paddingBottom: 40,
+  },
+  title: {
+    ...typography.h2,
+    color: colors.ink,
+    marginBottom: spacing.lg,
+  },
+  sectionTitle: {
+    ...typography.bodySemibold,
+    color: colors.inkSecondary,
+    marginBottom: spacing.sm,
+    marginTop: spacing.sm,
+  },
+  field: {
+    marginTop: spacing.lg,
+  },
+  label: {
+    ...typography.caption,
+    fontWeight: '600',
+    color: colors.inkSecondary,
+    marginBottom: spacing.sm,
+  },
+  input: {
+    backgroundColor: colors.bgCard,
+    borderWidth: 1,
+    borderColor: colors.borderInput,
+    borderRadius: radius.md,
+    paddingHorizontal: 14,
+    paddingVertical: spacing.md,
+    fontSize: 16,
+    color: colors.ink,
+  },
+  textArea: {
+    minHeight: 100,
+    textAlignVertical: 'top',
+  },
+  photoButton: {
+    backgroundColor: colors.bgCard,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingVertical: 14,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    marginTop: spacing.lg,
+    ...shadows.card,
+  },
+  photoButtonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  photoButtonText: {
+    ...typography.bodySemibold,
+    color: colors.inkSecondary,
+  },
+  submitButton: {
+    backgroundColor: colors.error,
+    paddingVertical: spacing.lg,
+    borderRadius: radius.lg,
+    alignItems: 'center',
+    marginTop: spacing.xl,
+    ...shadows.elevated,
+  },
+  submitDisabled: {
+    opacity: 0.5,
+  },
+  submitText: {
+    color: colors.inkOnDark,
+    ...typography.h3,
+  },
 });

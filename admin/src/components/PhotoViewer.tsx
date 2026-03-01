@@ -24,8 +24,8 @@ export default function PhotoViewer({ bucket, path, alt = 'Photo', className = '
     });
   }, [bucket, path]);
 
-  if (!path) return <span className="text-gray-400 text-sm">Pas de photo</span>;
-  if (loading) return <div className="w-16 h-16 bg-gray-200 animate-pulse rounded" />;
+  if (!path) return <span className="text-ink-faint text-sm">Pas de photo</span>;
+  if (loading) return <div className="w-16 h-16 bg-surface animate-pulse rounded" />;
   if (!url) return <span className="text-red-400 text-sm">Erreur photo</span>;
 
   return (
@@ -48,10 +48,10 @@ export default function PhotoViewer({ bucket, path, alt = 'Photo', className = '
             className="max-w-full max-h-full rounded-lg shadow-2xl"
           />
           <button
-            className="absolute top-4 right-4 text-white text-3xl hover:text-gray-300"
+            className="absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center transition-colors"
             onClick={() => setFullscreen(false)}
           >
-            ✕
+            <span className="text-white text-lg font-light">X</span>
           </button>
         </div>
       )}

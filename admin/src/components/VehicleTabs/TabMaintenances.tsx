@@ -56,50 +56,50 @@ export default function TabMaintenances({ vehicleId }: { vehicleId: string }) {
     }
   };
 
-  if (loading) return <p className="text-gray-500">Chargement...</p>;
+  if (loading) return <p className="text-ink-muted">Chargement...</p>;
 
   return (
     <div className="space-y-4">
-      <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 text-sm font-medium">
+      <button onClick={() => setShowForm(!showForm)} className="btn-primary">
         {showForm ? 'Annuler' : '+ Ajouter entretien'}
       </button>
 
       {showForm && (
-        <div className="bg-gray-50 rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-          <input placeholder="Type d'entretien *" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm" />
-          <input type="date" placeholder="Date *" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm" />
-          <input placeholder="Coût (€)" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm" />
-          <input placeholder="KM au service" value={form.km} onChange={(e) => setForm({ ...form, km: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm" />
-          <input type="date" placeholder="Prochain entretien" value={form.nextDate} onChange={(e) => setForm({ ...form, nextDate: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm" />
-          <input placeholder="Prochain KM" value={form.nextKm} onChange={(e) => setForm({ ...form, nextKm: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm" />
-          <textarea placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="border border-gray-300 rounded px-3 py-2 text-sm md:col-span-2" />
-          <button onClick={handleAdd} disabled={saving} className="px-4 py-2 bg-green-700 text-white rounded text-sm disabled:opacity-50">
+        <div className="bg-surface rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+          <input placeholder="Type d'entretien *" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="input-field" />
+          <input type="date" placeholder="Date *" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="input-field" />
+          <input placeholder="Cout (EUR)" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} className="input-field" />
+          <input placeholder="KM au service" value={form.km} onChange={(e) => setForm({ ...form, km: e.target.value })} className="input-field" />
+          <input type="date" placeholder="Prochain entretien" value={form.nextDate} onChange={(e) => setForm({ ...form, nextDate: e.target.value })} className="input-field" />
+          <input placeholder="Prochain KM" value={form.nextKm} onChange={(e) => setForm({ ...form, nextKm: e.target.value })} className="input-field" />
+          <textarea placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} className="input-field md:col-span-2" />
+          <button onClick={handleAdd} disabled={saving} className="btn-primary">
             {saving ? '...' : 'Ajouter'}
           </button>
         </div>
       )}
 
       {items.length === 0 ? (
-        <p className="text-gray-500">Aucun entretien</p>
+        <p className="text-ink-muted">Aucun entretien</p>
       ) : (
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200 text-left">
-              <th className="py-2 px-2">Date</th>
-              <th className="py-2 px-2">Type</th>
-              <th className="py-2 px-2">Coût</th>
-              <th className="py-2 px-2">KM</th>
-              <th className="py-2 px-2">Notes</th>
+            <tr className="border-b border-border text-left">
+              <th className="table-header">Date</th>
+              <th className="table-header">Type</th>
+              <th className="table-header">Cout</th>
+              <th className="table-header">KM</th>
+              <th className="table-header">Notes</th>
             </tr>
           </thead>
           <tbody>
             {items.map((m) => (
-              <tr key={m.id} className="border-b border-gray-100">
-                <td className="py-2 px-2">{new Date(m.service_date).toLocaleDateString('fr-FR')}</td>
-                <td className="py-2 px-2">{m.type}</td>
-                <td className="py-2 px-2">{m.cost ? `${Number(m.cost).toFixed(2)} €` : '—'}</td>
-                <td className="py-2 px-2">{m.km_at_service?.toLocaleString('fr-FR') ?? '—'}</td>
-                <td className="py-2 px-2 text-gray-500">{m.notes ?? '—'}</td>
+              <tr key={m.id} className="border-b border-border-light hover:bg-surface">
+                <td className="table-cell">{new Date(m.service_date).toLocaleDateString('fr-FR')}</td>
+                <td className="table-cell">{m.type}</td>
+                <td className="table-cell">{m.cost ? `${Number(m.cost).toFixed(2)} EUR` : '—'}</td>
+                <td className="table-cell">{m.km_at_service?.toLocaleString('fr-FR') ?? '—'}</td>
+                <td className="table-cell text-ink-muted">{m.notes ?? '—'}</td>
               </tr>
             ))}
           </tbody>

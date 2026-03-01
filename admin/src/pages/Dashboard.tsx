@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
 import { supabase } from '../lib/supabase';
 import MonthlyReportModal from '../components/MonthlyReportModal';
+import { Truck, Fuel, AlertTriangle, TrendingUp, FileText } from 'lucide-react';
 
-const COLORS = ['#2E7D32', '#42A5F5', '#FF9800', '#D32F2F', '#9C27B0', '#607D8B'];
+const COLORS = ['#2E7D32', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#64748B'];
 
 export default function Dashboard() {
   const [kpis, setKpis] = useState({ vehicles: 0, alerts: 0, fuelHT: 0, fuelTVA: 0, fuelTTC: 0, cleaning: 0, recurring: 0, extra: 0, incidents: 0, incidentCount: 0 });
@@ -53,7 +54,7 @@ export default function Dashboard() {
       setDonutData([
         { name: 'Carburant', value: fuelTTC },
         { name: 'Nettoyage', value: cleanTotal },
-        { name: 'Frais récurrents', value: recurTotal },
+        { name: 'Frais recurrents', value: recurTotal },
         { name: 'Frais ponctuels', value: extraTotal },
       ].filter((d) => d.value > 0));
 
@@ -95,59 +96,123 @@ export default function Dashboard() {
   const fmt = (n: number) => n.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
   const total = kpis.fuelTTC + kpis.cleaning + kpis.recurring + kpis.extra;
 
-  if (loading) return <div className="flex items-center justify-center h-64"><p className="text-gray-500">Chargement...</p></div>;
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <div className="w-8 h-8 border-2 border-brand-700/30 border-t-brand-700 rounded-full animate-spin" />
+    </div>
+  );
 
   return (
     <div className="space-y-6 pb-20 md:pb-0">
-      <h1 className="text-2xl font-extrabold text-gray-800">Tableau de bord</h1>
+      <h1 className="page-title">Tableau de bord</h1>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <KPICard label="Vehicules actifs" value={kpis.vehicles.toString()} />
-        <KPICard label="Carburant HT" value={fmt(kpis.fuelHT)} sub={`TVA: ${fmt(kpis.fuelTVA)} | TTC: ${fmt(kpis.fuelTTC)}`} />
-        <KPICard label="Incidents" value={kpis.incidentCount > 0 ? `${kpis.incidentCount} (${fmt(kpis.incidents)})` : '0'} alert={kpis.incidentCount > 0} />
-        <KPICard label="Cout total flotte" value={fmt(total)} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPICard
+          label="Vehicules actifs"
+          value={kpis.vehicles.toString()}
+          icon={<Truck size={20} />}
+          iconBg="bg-brand-50"
+          iconColor="text-brand-700"
+        />
+        <KPICard
+          label="Carburant HT"
+          value={fmt(kpis.fuelHT)}
+          sub={`TTC: ${fmt(kpis.fuelTTC)}`}
+          icon={<Fuel size={20} />}
+          iconBg="bg-blue-50"
+          iconColor="text-blue-600"
+        />
+        <KPICard
+          label="Incidents ce mois"
+          value={kpis.incidentCount > 0 ? `${kpis.incidentCount}` : '0'}
+          sub={kpis.incidentCount > 0 ? fmt(kpis.incidents) : undefined}
+          alert={kpis.incidentCount > 0}
+          icon={<AlertTriangle size={20} />}
+          iconBg="bg-red-50"
+          iconColor="text-red-500"
+        />
+        <KPICard
+          label="Cout total flotte"
+          value={fmt(total)}
+          icon={<TrendingUp size={20} />}
+          iconBg="bg-amber-50"
+          iconColor="text-amber-600"
+        />
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="text-sm font-bold text-gray-700 mb-4">Dépenses mensuelles</h3>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={monthlyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip formatter={(v: number) => fmt(v)} />
-              <Bar dataKey="fuel" stackId="a" fill="#2E7D32" name="Carburant" />
-              <Bar dataKey="cleaning" stackId="a" fill="#42A5F5" name="Nettoyage" />
-              <Bar dataKey="maintenance" stackId="a" fill="#FF9800" name="Entretien" />
-              <Bar dataKey="incidents" stackId="a" fill="#D32F2F" name="Incidents" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="lg:col-span-2 card p-5">
+          <h3 className="text-sm font-semibold text-ink mb-5">Depenses mensuelles</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={monthlyData} barCategoryGap="20%">
+              <CartesianGrid strokeDasharray="3 3" stroke="#E8E9EE" vertical={false} />
+              <XAxis dataKey="month" tick={{ fontSize: 11, fill: '#6E7491' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: '#6E7491' }} axisLine={false} tickLine={false} />
+              <Tooltip
+                formatter={(v: number) => fmt(v)}
+                contentStyle={{ borderRadius: '12px', border: '1px solid #E8E9EE', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', fontSize: '12px' }}
+              />
+              <Bar dataKey="fuel" stackId="a" fill="#2E7D32" name="Carburant" radius={[0, 0, 0, 0]} />
+              <Bar dataKey="cleaning" stackId="a" fill="#3B82F6" name="Nettoyage" />
+              <Bar dataKey="maintenance" stackId="a" fill="#F59E0B" name="Entretien" />
+              <Bar dataKey="incidents" stackId="a" fill="#EF4444" name="Incidents" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <h3 className="text-sm font-bold text-gray-700 mb-4">Répartition ce mois</h3>
+        <div className="card p-5">
+          <h3 className="text-sm font-semibold text-ink mb-5">Repartition ce mois</h3>
           {donutData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={280}>
+            <ResponsiveContainer width="100%" height={300}>
               <PieChart>
-                <Pie data={donutData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={3} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                <Pie
+                  data={donutData}
+                  cx="50%"
+                  cy="45%"
+                  innerRadius={55}
+                  outerRadius={90}
+                  paddingAngle={4}
+                  dataKey="value"
+                  stroke="none"
+                >
                   {donutData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
-                <Tooltip formatter={(v: number) => fmt(v)} />
+                <Tooltip
+                  formatter={(v: number) => fmt(v)}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #E8E9EE', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', fontSize: '12px' }}
+                />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-gray-400 text-center py-20">Aucune donnée ce mois</p>
+            <div className="flex items-center justify-center h-[300px]">
+              <p className="text-ink-muted text-sm">Aucune donnee ce mois</p>
+            </div>
+          )}
+          {/* Legend */}
+          {donutData.length > 0 && (
+            <div className="flex flex-wrap gap-3 mt-2">
+              {donutData.map((d, i) => (
+                <div key={d.name} className="flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                  <span className="text-[11px] text-ink-secondary">{d.name}</span>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
 
       {report && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
-          <span className="text-sm text-blue-800 font-medium">Rapport mensuel {report.period} disponible</span>
-          <button onClick={() => setShowReport(true)} className="text-sm px-4 py-1.5 bg-blue-600 text-white rounded hover:bg-blue-700">Voir</button>
+        <div className="card p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-blue-50 rounded-xl flex items-center justify-center">
+              <FileText size={18} className="text-blue-600" />
+            </div>
+            <span className="text-sm font-medium text-ink">Rapport mensuel {report.period} disponible</span>
+          </div>
+          <button onClick={() => setShowReport(true)} className="btn-primary text-xs py-2 px-4">Consulter</button>
         </div>
       )}
 
@@ -158,12 +223,20 @@ export default function Dashboard() {
   );
 }
 
-function KPICard({ label, value, sub, alert }: { label: string; value: string; sub?: string; alert?: boolean }) {
+function KPICard({ label, value, sub, alert, icon, iconBg, iconColor }: {
+  label: string; value: string; sub?: string; alert?: boolean;
+  icon?: React.ReactNode; iconBg?: string; iconColor?: string;
+}) {
   return (
-    <div className={`bg-white rounded-xl border p-4 ${alert ? 'border-red-300 bg-red-50' : 'border-gray-200'}`}>
-      <p className={`text-2xl font-extrabold ${alert ? 'text-red-600' : 'text-gray-800'}`}>{value}</p>
-      <p className="text-xs text-gray-500 mt-1">{label}</p>
-      {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
+    <div className={`card-hover p-5 ${alert ? 'border-red-200 bg-red-50/30' : ''}`}>
+      {icon && (
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${alert ? 'bg-red-100 text-red-500' : (iconBg ?? 'bg-surface')} ${alert ? '' : (iconColor ?? 'text-ink-secondary')}`}>
+          {icon}
+        </div>
+      )}
+      <p className={`text-[22px] font-bold tracking-tight ${alert ? 'text-red-600' : 'text-ink'}`}>{value}</p>
+      <p className="text-xs text-ink-muted mt-1 font-medium">{label}</p>
+      {sub && <p className="text-[11px] text-ink-muted/70 mt-0.5">{sub}</p>}
     </div>
   );
 }

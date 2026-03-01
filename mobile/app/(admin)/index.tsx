@@ -8,7 +8,9 @@ import {
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { supabase } from '../../lib/supabase';
+import { colors, spacing, radius, typography, shadows } from '../../constants/theme';
 
 interface KPIs {
   vehicleCount: number;
@@ -24,10 +26,16 @@ interface AlertItem {
   triggered_at: string;
 }
 
-const TYPE_ICONS: Record<string, string> = {
-  ct_expiry: '📋', maintenance_due: '🔧', high_consumption: '⛽',
-  no_fill: '⛽', document_expiry: '📄', custom_reminder: '📌',
-  replacement_ending: '🔄', monthly_report: '📊', incident: '🚨',
+const TYPE_ICONS: Record<string, keyof typeof Feather.glyphMap> = {
+  ct_expiry: 'clipboard',
+  maintenance_due: 'tool',
+  high_consumption: 'droplet',
+  no_fill: 'droplet',
+  document_expiry: 'file',
+  custom_reminder: 'bookmark',
+  replacement_ending: 'refresh-cw',
+  monthly_report: 'bar-chart-2',
+  incident: 'alert-octagon',
 };
 
 export default function AdminDashboard() {
@@ -86,7 +94,7 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color="#2E7D32" />
+        <ActivityIndicator size="large" color={colors.brand} />
       </View>
     );
   }
@@ -95,17 +103,17 @@ export default function AdminDashboard() {
     <ScrollView
       style={styles.container}
       contentContainerStyle={styles.content}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#2E7D32" />}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.brand} />}
     >
       <Text style={styles.title}>Tableau de bord</Text>
 
       <View style={styles.kpiGrid}>
         <View style={styles.kpiCard}>
           <Text style={styles.kpiValue}>{kpis.vehicleCount}</Text>
-          <Text style={styles.kpiLabel}>Véhicules actifs</Text>
+          <Text style={styles.kpiLabel}>Vehicules actifs</Text>
         </View>
         <View style={[styles.kpiCard, kpis.alertCount > 0 && styles.kpiAlert]}>
-          <Text style={[styles.kpiValue, kpis.alertCount > 0 && { color: '#D32F2F' }]}>{kpis.alertCount}</Text>
+          <Text style={[styles.kpiValue, kpis.alertCount > 0 && { color: colors.error }]}>{kpis.alertCount}</Text>
           <Text style={styles.kpiLabel}>Alertes</Text>
         </View>
         <View style={styles.kpiCard}>
@@ -114,30 +122,37 @@ export default function AdminDashboard() {
         </View>
         <View style={styles.kpiCard}>
           <Text style={styles.kpiValue}>{formatCurrency(kpis.totalCostMonth)}</Text>
-          <Text style={styles.kpiLabel}>Coût total</Text>
+          <Text style={styles.kpiLabel}>Cout total</Text>
         </View>
       </View>
 
       {alerts.length > 0 && (
         <>
-          <Text style={styles.sectionTitle}>Alertes récentes</Text>
-          {alerts.map((alert) => (
-            <TouchableOpacity
-              key={alert.id}
-              style={styles.alertCard}
-              onPress={() => acknowledgeAlert(alert.id)}
-              accessibilityLabel={`Acquitter alerte: ${alert.message}`}
-            >
-              <Text style={styles.alertIcon}>{TYPE_ICONS[alert.type] ?? '⚠️'}</Text>
-              <View style={styles.alertContent}>
-                <Text style={styles.alertMessage} numberOfLines={2}>{alert.message}</Text>
-                <Text style={styles.alertDate}>
-                  {new Date(alert.triggered_at).toLocaleDateString('fr-FR')}
-                </Text>
-              </View>
-              <Text style={styles.tapHint}>Tap = ✓</Text>
-            </TouchableOpacity>
-          ))}
+          <Text style={styles.sectionTitle}>Alertes recentes</Text>
+          {alerts.map((alert) => {
+            const iconName = TYPE_ICONS[alert.type] ?? 'alert-triangle';
+            return (
+              <TouchableOpacity
+                key={alert.id}
+                style={styles.alertCard}
+                onPress={() => acknowledgeAlert(alert.id)}
+                accessibilityLabel={`Acquitter alerte: ${alert.message}`}
+              >
+                <View style={styles.alertIconContainer}>
+                  <Feather name={iconName} size={18} color={colors.warning} />
+                </View>
+                <View style={styles.alertContent}>
+                  <Text style={styles.alertMessage} numberOfLines={2}>{alert.message}</Text>
+                  <Text style={styles.alertDate}>
+                    {new Date(alert.triggered_at).toLocaleDateString('fr-FR')}
+                  </Text>
+                </View>
+                <View style={styles.tapHintContainer}>
+                  <Feather name="check" size={14} color={colors.inkMuted} />
+                </View>
+              </TouchableOpacity>
+            );
+          })}
         </>
       )}
     </ScrollView>
@@ -145,20 +160,53 @@ export default function AdminDashboard() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  content: { padding: 16, paddingTop: 50 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 24, fontWeight: '800', color: '#2E7D32', marginBottom: 16 },
-  kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  kpiCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16, width: '48%', borderWidth: 1, borderColor: '#E0E0E0' },
-  kpiAlert: { borderColor: '#D32F2F', backgroundColor: '#FFEBEE' },
-  kpiValue: { fontSize: 22, fontWeight: '800', color: '#333' },
-  kpiLabel: { fontSize: 12, color: '#888', marginTop: 4 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#333', marginTop: 24, marginBottom: 12 },
-  alertCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 14, borderRadius: 10, marginBottom: 8, borderLeftWidth: 4, borderLeftColor: '#FF9800' },
-  alertIcon: { fontSize: 22, marginRight: 10 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.lg, paddingTop: 50 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+  title: { ...typography.h1, color: colors.ink, marginBottom: spacing.lg },
+  kpiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  kpiCard: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    width: '48%',
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadows.card,
+  },
+  kpiAlert: { borderColor: colors.error, backgroundColor: colors.errorBg },
+  kpiValue: { ...typography.h2, color: colors.ink },
+  kpiLabel: { ...typography.caption, color: colors.inkSecondary, marginTop: spacing.xs },
+  sectionTitle: { ...typography.h3, color: colors.ink, marginTop: spacing.xxl, marginBottom: spacing.md },
+  alertCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.bgCard,
+    padding: spacing.lg,
+    borderRadius: radius.md,
+    marginBottom: spacing.sm,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.warning,
+    ...shadows.card,
+  },
+  alertIconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: radius.sm,
+    backgroundColor: colors.warningBg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing.md,
+  },
   alertContent: { flex: 1 },
-  alertMessage: { fontSize: 13, color: '#333', fontWeight: '500' },
-  alertDate: { fontSize: 11, color: '#888', marginTop: 2 },
-  tapHint: { fontSize: 10, color: '#999' },
+  alertMessage: { ...typography.caption, color: colors.ink },
+  alertDate: { ...typography.small, color: colors.inkSecondary, marginTop: spacing.xs, textTransform: 'none', letterSpacing: 0 },
+  tapHintContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: radius.full,
+    backgroundColor: colors.bg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

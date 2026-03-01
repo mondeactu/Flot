@@ -79,21 +79,21 @@ export default function DriverAssignmentModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
-        <h3 className="text-lg font-bold text-gray-800 mb-4">Affectation conducteur</h3>
+    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-surface-card rounded-2xl shadow-modal w-full max-w-md p-6 animate-fade-in">
+        <h3 className="text-lg font-bold text-ink mb-4">Affectation conducteur</h3>
 
         {error && (
-          <div className="bg-red-50 text-red-700 text-sm p-3 rounded mb-4">{error}</div>
+          <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg mb-4">{error}</div>
         )}
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+            <label className="block text-sm font-medium text-ink mb-1">Type</label>
             <select
               value={assignmentType}
               onChange={(e) => setAssignmentType(e.target.value as 'titular' | 'replacement')}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              className="input-field"
             >
               <option value="titular">Titulaire</option>
               <option value="replacement">Remplaçant</option>
@@ -101,13 +101,13 @@ export default function DriverAssignmentModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Conducteur</label>
+            <label className="block text-sm font-medium text-ink mb-1">Conducteur</label>
             <select
               value={selectedDriverId}
               onChange={(e) => setSelectedDriverId(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              className="input-field"
             >
-              <option value="">— Sélectionner —</option>
+              <option value="">-- Selectionner --</option>
               {drivers.map((d) => (
                 <option key={d.id} value={d.id}>{d.full_name}</option>
               ))}
@@ -115,23 +115,23 @@ export default function DriverAssignmentModal({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
+            <label className="block text-sm font-medium text-ink mb-1">Date de debut</label>
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              className="input-field"
             />
           </div>
 
           {assignmentType === 'replacement' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
+              <label className="block text-sm font-medium text-ink mb-1">Date de fin</label>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+                className="input-field"
               />
             </div>
           )}
@@ -140,14 +140,14 @@ export default function DriverAssignmentModal({
         <div className="flex gap-3 mt-6">
           <button
             onClick={onClose}
-            className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
+            className="btn-secondary flex-1"
           >
             Annuler
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 px-4 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 disabled:opacity-50 text-sm font-medium"
+            className="btn-primary flex-1"
           >
             {saving ? 'Enregistrement...' : 'Enregistrer'}
           </button>

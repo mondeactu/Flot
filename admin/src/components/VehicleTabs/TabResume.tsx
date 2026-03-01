@@ -60,59 +60,59 @@ export default function TabResume({ vehicle, onUpdated }: TabResumeProps) {
 
   return (
     <div className="space-y-4">
-      {message && <p className={`text-sm ${message.startsWith('success:') ? 'text-green-600' : 'text-red-600'}`}>{message.replace(/^(success:|error:)/, '')}</p>}
+      {message && <p className={`text-sm ${message.startsWith('success:') ? 'text-brand-700' : 'text-red-600'}`}>{message.replace(/^(success:|error:)/, '')}</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Plaque</label>
-          <input value={vehicle.plate} disabled className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50" />
+          <label className="block text-sm font-medium text-ink mb-1">Plaque</label>
+          <input value={vehicle.plate} disabled className="input-field bg-surface text-ink-muted" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Marque</label>
-          <input value={form.brand ?? ''} onChange={(e) => setForm({ ...form, brand: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+          <label className="block text-sm font-medium text-ink mb-1">Marque</label>
+          <input value={form.brand ?? ''} onChange={(e) => setForm({ ...form, brand: e.target.value })} className="input-field" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Modèle</label>
-          <input value={form.model ?? ''} onChange={(e) => setForm({ ...form, model: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+          <label className="block text-sm font-medium text-ink mb-1">Modèle</label>
+          <input value={form.model ?? ''} onChange={(e) => setForm({ ...form, model: e.target.value })} className="input-field" />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Année</label>
-          <input type="number" value={form.year ?? ''} onChange={(e) => setForm({ ...form, year: e.target.value ? parseInt(e.target.value) : null })} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+          <label className="block text-sm font-medium text-ink mb-1">Année</label>
+          <input type="number" value={form.year ?? ''} onChange={(e) => setForm({ ...form, year: e.target.value ? parseInt(e.target.value) : null })} className="input-field" />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex items-end gap-2">
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Prochain CT</label>
-            <input type="date" value={form.next_inspection_date ?? ''} onChange={(e) => setForm({ ...form, next_inspection_date: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+            <label className="block text-sm font-medium text-ink mb-1">Prochain CT</label>
+            <input type="date" value={form.next_inspection_date ?? ''} onChange={(e) => setForm({ ...form, next_inspection_date: e.target.value })} className="input-field" />
           </div>
           <AlertThresholdButton vehicleId={vehicle.id} field="alert_inspection_days_before" currentValue={vehicle.alert_inspection_days_before} unit="jours" label="CT" />
         </div>
 
         <div className="flex items-end gap-2">
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Prochain entretien (date)</label>
-            <input type="date" value={form.next_maintenance_date ?? ''} onChange={(e) => setForm({ ...form, next_maintenance_date: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+            <label className="block text-sm font-medium text-ink mb-1">Prochain entretien (date)</label>
+            <input type="date" value={form.next_maintenance_date ?? ''} onChange={(e) => setForm({ ...form, next_maintenance_date: e.target.value })} className="input-field" />
           </div>
           <AlertThresholdButton vehicleId={vehicle.id} field="alert_maintenance_days_before" currentValue={vehicle.alert_maintenance_days_before} unit="jours" label="Entretien (jours)" />
         </div>
 
         <div className="flex items-end gap-2">
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Prochain entretien (km)</label>
-            <input type="number" value={form.next_maintenance_km ?? ''} onChange={(e) => setForm({ ...form, next_maintenance_km: e.target.value ? parseInt(e.target.value) : null })} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+            <label className="block text-sm font-medium text-ink mb-1">Prochain entretien (km)</label>
+            <input type="number" value={form.next_maintenance_km ?? ''} onChange={(e) => setForm({ ...form, next_maintenance_km: e.target.value ? parseInt(e.target.value) : null })} className="input-field" />
           </div>
           <AlertThresholdButton vehicleId={vehicle.id} field="alert_maintenance_km_before" currentValue={vehicle.alert_maintenance_km_before} unit="km" label="Entretien (km)" />
         </div>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
-        <textarea value={form.notes ?? ''} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+        <label className="block text-sm font-medium text-ink mb-1">Notes</label>
+        <textarea value={form.notes ?? ''} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3} className="input-field" />
       </div>
 
-      <button onClick={handleSave} disabled={saving} className="px-6 py-2 bg-green-700 text-white rounded-lg hover:bg-green-800 disabled:opacity-50 text-sm font-medium">
+      <button onClick={handleSave} disabled={saving} className="btn-primary">
         {saving ? 'Enregistrement...' : 'Enregistrer'}
       </button>
     </div>

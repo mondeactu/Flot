@@ -39,31 +39,31 @@ export default function TabCleanings({ vehicleId }: { vehicleId: string }) {
     return () => window.removeEventListener('flot:data-updated', handler);
   }, [vehicleId]);
 
-  if (loading) return <p className="text-gray-500">Chargement...</p>;
-  if (cleanings.length === 0) return <p className="text-gray-500">Aucun nettoyage enregistre</p>;
+  if (loading) return <p className="text-ink-muted">Chargement...</p>;
+  if (cleanings.length === 0) return <p className="text-ink-muted">Aucun nettoyage enregistre</p>;
 
   return (
     <div className="space-y-4">
       {cleanings.map((c) => (
-        <div key={c.id} className="bg-white border border-gray-200 rounded-lg p-4">
+        <div key={c.id} className="card">
           <div className="flex justify-between items-center mb-3">
             <div>
-              <span className="text-sm font-medium text-gray-800">
+              <span className="text-sm font-medium text-ink">
                 {new Date(c.cleaned_at).toLocaleDateString('fr-FR')}
               </span>
-              <span className="text-sm text-gray-500 ml-3">
+              <span className="text-sm text-ink-muted ml-3">
                 {(c.driver as unknown as { full_name: string })?.full_name ?? '—'}
               </span>
             </div>
             {c.price_ttc && (
-              <span className="text-sm font-bold text-green-700">
+              <span className="text-sm font-bold text-brand-700">
                 {Number(c.price_ttc).toFixed(2)} EUR
               </span>
             )}
           </div>
 
           <div className="mb-2">
-            <p className="text-xs font-medium text-gray-500 mb-1">Photos</p>
+            <p className="text-xs font-medium text-ink-muted mb-1">Photos</p>
             <div className="flex gap-2 flex-wrap">
               {/* New vehicle state photo (new flow) */}
               {c.vehicle_state_photo_url && (
@@ -80,7 +80,7 @@ export default function TabCleanings({ vehicleId }: { vehicleId: string }) {
             </div>
           </div>
 
-          {c.notes && <p className="text-sm text-gray-500 mt-2">{c.notes}</p>}
+          {c.notes && <p className="text-sm text-ink-muted mt-2">{c.notes}</p>}
         </div>
       ))}
     </div>

@@ -37,8 +37,8 @@ export default function TabFills({ vehicleId }: { vehicleId: string }) {
     return () => window.removeEventListener('flot:data-updated', handler);
   }, [vehicleId]);
 
-  if (loading) return <p className="text-gray-500">Chargement...</p>;
-  if (fills.length === 0) return <p className="text-gray-500">Aucun plein enregistre</p>;
+  if (loading) return <p className="text-ink-muted">Chargement...</p>;
+  if (fills.length === 0) return <p className="text-ink-muted">Aucun plein enregistre</p>;
 
   const fmt = (n: number) => Number(n).toLocaleString('fr-FR', { minimumFractionDigits: 2 });
   const fmtDate = (d: string) => new Date(d).toLocaleDateString('fr-FR');
@@ -47,31 +47,31 @@ export default function TabFills({ vehicleId }: { vehicleId: string }) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-gray-200 text-left">
-            <th className="py-2 px-2">Date</th>
-            <th className="py-2 px-2">HT</th>
-            <th className="py-2 px-2">TTC</th>
-            <th className="py-2 px-2">Litres</th>
-            <th className="py-2 px-2">KM</th>
-            <th className="py-2 px-2">Type</th>
-            <th className="py-2 px-2">Conducteur</th>
-            <th className="py-2 px-2">Ticket</th>
+          <tr className="border-b border-border text-left">
+            <th className="table-header">Date</th>
+            <th className="table-header">HT</th>
+            <th className="table-header">TTC</th>
+            <th className="table-header">Litres</th>
+            <th className="table-header">KM</th>
+            <th className="table-header">Type</th>
+            <th className="table-header">Conducteur</th>
+            <th className="table-header">Ticket</th>
           </tr>
         </thead>
         <tbody>
           {fills.map((f) => (
-            <tr key={f.id} className="border-b border-gray-100 hover:bg-gray-50">
-              <td className="py-2 px-2">{fmtDate(f.filled_at)}</td>
-              <td className="py-2 px-2">{fmt(f.price_ht)} EUR</td>
-              <td className="py-2 px-2 font-medium">{fmt(f.price_ttc)} EUR</td>
-              <td className="py-2 px-2">{f.liters ? fmt(f.liters) : '—'}</td>
-              <td className="py-2 px-2">{f.km_at_fill.toLocaleString('fr-FR')}</td>
-              <td className="py-2 px-2">
+            <tr key={f.id} className="border-b border-border-light hover:bg-surface">
+              <td className="table-cell">{fmtDate(f.filled_at)}</td>
+              <td className="table-cell">{fmt(f.price_ht)} EUR</td>
+              <td className="table-cell font-medium">{fmt(f.price_ttc)} EUR</td>
+              <td className="table-cell">{f.liters ? fmt(f.liters) : '—'}</td>
+              <td className="table-cell">{f.km_at_fill.toLocaleString('fr-FR')}</td>
+              <td className="table-cell">
                 {f.fuel_type ? (
                   <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-bold ${
                     f.fuel_type === 'diesel'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-green-100 text-green-800'
+                      ? 'bg-amber-50 text-amber-700'
+                      : 'bg-brand-50 text-brand-700'
                   }`}>
                     {f.fuel_type === 'diesel' ? 'Diesel' : 'Essence'}
                   </span>
@@ -79,8 +79,8 @@ export default function TabFills({ vehicleId }: { vehicleId: string }) {
                   f.station_name ?? '—'
                 )}
               </td>
-              <td className="py-2 px-2">{(f.driver as unknown as { full_name: string })?.full_name ?? '—'}</td>
-              <td className="py-2 px-2">
+              <td className="table-cell">{(f.driver as unknown as { full_name: string })?.full_name ?? '—'}</td>
+              <td className="table-cell">
                 <PhotoViewer bucket="receipts" path={f.receipt_photo_url} />
               </td>
             </tr>

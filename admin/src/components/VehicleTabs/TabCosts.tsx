@@ -41,37 +41,37 @@ export default function TabCosts({ vehicleId }: { vehicleId: string }) {
     fetchData();
   };
 
-  if (loading) return <p className="text-gray-500">Chargement...</p>;
+  if (loading) return <p className="text-ink-muted">Chargement...</p>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-sm font-bold text-gray-700">Frais récurrents</h4>
-          <button onClick={() => setShowRecForm(!showRecForm)} className="text-xs px-3 py-1 bg-green-700 text-white rounded">+ Ajouter</button>
+          <h4 className="text-sm font-bold text-ink">Frais recurrents</h4>
+          <button onClick={() => setShowRecForm(!showRecForm)} className="btn-primary text-xs px-3 py-1">+ Ajouter</button>
         </div>
         {showRecForm && (
-          <div className="bg-gray-50 rounded p-3 grid grid-cols-2 gap-2 mb-3">
-            <input placeholder="Libellé *" value={recForm.label} onChange={(e) => setRecForm({ ...recForm, label: e.target.value })} className="border rounded px-2 py-1 text-sm" />
-            <input placeholder="Montant (€) *" value={recForm.amount} onChange={(e) => setRecForm({ ...recForm, amount: e.target.value })} className="border rounded px-2 py-1 text-sm" />
-            <select value={recForm.frequency} onChange={(e) => setRecForm({ ...recForm, frequency: e.target.value })} className="border rounded px-2 py-1 text-sm">
+          <div className="bg-surface rounded-lg p-3 grid grid-cols-2 gap-2 mb-3 border border-border-light">
+            <input placeholder="Libelle *" value={recForm.label} onChange={(e) => setRecForm({ ...recForm, label: e.target.value })} className="input-field" />
+            <input placeholder="Montant (EUR) *" value={recForm.amount} onChange={(e) => setRecForm({ ...recForm, amount: e.target.value })} className="input-field" />
+            <select value={recForm.frequency} onChange={(e) => setRecForm({ ...recForm, frequency: e.target.value })} className="input-field">
               <option value="monthly">Mensuel</option>
               <option value="annual">Annuel</option>
             </select>
-            <input type="date" value={recForm.start_date} onChange={(e) => setRecForm({ ...recForm, start_date: e.target.value })} className="border rounded px-2 py-1 text-sm" />
-            <button onClick={addRecurring} className="col-span-2 bg-green-700 text-white rounded py-1 text-sm">Ajouter</button>
+            <input type="date" value={recForm.start_date} onChange={(e) => setRecForm({ ...recForm, start_date: e.target.value })} className="input-field" />
+            <button onClick={addRecurring} className="btn-primary col-span-2 py-1 text-sm">Ajouter</button>
           </div>
         )}
-        {recurring.length === 0 ? <p className="text-gray-400 text-sm">Aucun</p> : (
+        {recurring.length === 0 ? <p className="text-ink-faint text-sm">Aucun</p> : (
           <table className="w-full text-sm">
-            <thead><tr className="border-b text-left"><th className="py-1 px-2">Libellé</th><th className="py-1 px-2">Montant</th><th className="py-1 px-2">Fréquence</th><th className="py-1 px-2">Début</th></tr></thead>
+            <thead><tr className="border-b border-border text-left"><th className="table-header py-1 px-2">Libelle</th><th className="table-header py-1 px-2">Montant</th><th className="table-header py-1 px-2">Frequence</th><th className="table-header py-1 px-2">Debut</th></tr></thead>
             <tbody>
               {recurring.map((r) => (
-                <tr key={r.id} className="border-b border-gray-100">
-                  <td className="py-1 px-2">{r.label}</td>
-                  <td className="py-1 px-2">{Number(r.amount).toFixed(2)} €</td>
-                  <td className="py-1 px-2">{r.frequency === 'monthly' ? 'Mensuel' : 'Annuel'}</td>
-                  <td className="py-1 px-2">{new Date(r.start_date).toLocaleDateString('fr-FR')}</td>
+                <tr key={r.id} className="border-b border-border-light">
+                  <td className="table-cell py-1 px-2">{r.label}</td>
+                  <td className="table-cell py-1 px-2">{Number(r.amount).toFixed(2)} EUR</td>
+                  <td className="table-cell py-1 px-2">{r.frequency === 'monthly' ? 'Mensuel' : 'Annuel'}</td>
+                  <td className="table-cell py-1 px-2">{new Date(r.start_date).toLocaleDateString('fr-FR')}</td>
                 </tr>
               ))}
             </tbody>
@@ -81,28 +81,28 @@ export default function TabCosts({ vehicleId }: { vehicleId: string }) {
 
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h4 className="text-sm font-bold text-gray-700">Frais ponctuels</h4>
-          <button onClick={() => setShowExtForm(!showExtForm)} className="text-xs px-3 py-1 bg-green-700 text-white rounded">+ Ajouter</button>
+          <h4 className="text-sm font-bold text-ink">Frais ponctuels</h4>
+          <button onClick={() => setShowExtForm(!showExtForm)} className="btn-primary text-xs px-3 py-1">+ Ajouter</button>
         </div>
         {showExtForm && (
-          <div className="bg-gray-50 rounded p-3 grid grid-cols-2 gap-2 mb-3">
-            <input placeholder="Libellé *" value={extForm.label} onChange={(e) => setExtForm({ ...extForm, label: e.target.value })} className="border rounded px-2 py-1 text-sm" />
-            <input placeholder="Montant (€) *" value={extForm.amount} onChange={(e) => setExtForm({ ...extForm, amount: e.target.value })} className="border rounded px-2 py-1 text-sm" />
-            <input type="date" value={extForm.cost_date} onChange={(e) => setExtForm({ ...extForm, cost_date: e.target.value })} className="border rounded px-2 py-1 text-sm" />
-            <input placeholder="Notes" value={extForm.notes} onChange={(e) => setExtForm({ ...extForm, notes: e.target.value })} className="border rounded px-2 py-1 text-sm" />
-            <button onClick={addExtra} className="col-span-2 bg-green-700 text-white rounded py-1 text-sm">Ajouter</button>
+          <div className="bg-surface rounded-lg p-3 grid grid-cols-2 gap-2 mb-3 border border-border-light">
+            <input placeholder="Libelle *" value={extForm.label} onChange={(e) => setExtForm({ ...extForm, label: e.target.value })} className="input-field" />
+            <input placeholder="Montant (EUR) *" value={extForm.amount} onChange={(e) => setExtForm({ ...extForm, amount: e.target.value })} className="input-field" />
+            <input type="date" value={extForm.cost_date} onChange={(e) => setExtForm({ ...extForm, cost_date: e.target.value })} className="input-field" />
+            <input placeholder="Notes" value={extForm.notes} onChange={(e) => setExtForm({ ...extForm, notes: e.target.value })} className="input-field" />
+            <button onClick={addExtra} className="btn-primary col-span-2 py-1 text-sm">Ajouter</button>
           </div>
         )}
-        {extras.length === 0 ? <p className="text-gray-400 text-sm">Aucun</p> : (
+        {extras.length === 0 ? <p className="text-ink-faint text-sm">Aucun</p> : (
           <table className="w-full text-sm">
-            <thead><tr className="border-b text-left"><th className="py-1 px-2">Date</th><th className="py-1 px-2">Libellé</th><th className="py-1 px-2">Montant</th><th className="py-1 px-2">Notes</th></tr></thead>
+            <thead><tr className="border-b border-border text-left"><th className="table-header py-1 px-2">Date</th><th className="table-header py-1 px-2">Libelle</th><th className="table-header py-1 px-2">Montant</th><th className="table-header py-1 px-2">Notes</th></tr></thead>
             <tbody>
               {extras.map((e) => (
-                <tr key={e.id} className="border-b border-gray-100">
-                  <td className="py-1 px-2">{new Date(e.cost_date).toLocaleDateString('fr-FR')}</td>
-                  <td className="py-1 px-2">{e.label}</td>
-                  <td className="py-1 px-2">{Number(e.amount).toFixed(2)} €</td>
-                  <td className="py-1 px-2 text-gray-500">{e.notes ?? '—'}</td>
+                <tr key={e.id} className="border-b border-border-light">
+                  <td className="table-cell py-1 px-2">{new Date(e.cost_date).toLocaleDateString('fr-FR')}</td>
+                  <td className="table-cell py-1 px-2">{e.label}</td>
+                  <td className="table-cell py-1 px-2">{Number(e.amount).toFixed(2)} EUR</td>
+                  <td className="table-cell py-1 px-2 text-ink-muted">{e.notes ?? '---'}</td>
                 </tr>
               ))}
             </tbody>

@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Platform,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
 // Web-compatible file picker fallback
 function WebFilePicker({ onPhotoTaken, label }: { onPhotoTaken: (base64: string, uri: string) => void; label?: string }) {
@@ -40,7 +41,10 @@ function WebFilePicker({ onPhotoTaken, label }: { onPhotoTaken: (base64: string,
       {label && <Text style={styles.label}>{label}</Text>}
       {preview && <Image source={{ uri: preview }} style={{ width: 200, height: 200, borderRadius: 8, marginBottom: 16 }} />}
       <TouchableOpacity style={styles.permButton} onPress={handleFilePick}>
-        <Text style={styles.permButtonText}>📷 {preview ? 'Changer la photo' : 'Choisir une photo'}</Text>
+        <View style={styles.buttonRow}>
+          <Feather name="camera" size={18} color="#fff" />
+          <Text style={styles.permButtonText}>{preview ? 'Changer la photo' : 'Choisir une photo'}</Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -165,7 +169,10 @@ function NativePhotoCapture({ onPhotoTaken, label }: PhotoCaptureProps) {
         disabled={loading}
         accessibilityLabel="Prendre la photo"
       >
-        <Text style={styles.captureText}>📷 Prendre la photo</Text>
+        <View style={styles.buttonRow}>
+          <Feather name="camera" size={20} color="#fff" />
+          <Text style={styles.captureText}>Prendre la photo</Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
@@ -231,6 +238,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '700',
+  },
+  buttonRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 8,
   },
   previewContainer: {
     flex: 1,

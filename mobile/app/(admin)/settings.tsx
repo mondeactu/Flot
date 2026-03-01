@@ -12,6 +12,7 @@ import {
 import { useRouter } from 'expo-router';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/auth.store';
+import { colors, spacing, radius, typography, shadows } from '../../constants/theme';
 
 interface AlertSettings {
   id: string;
@@ -65,7 +66,7 @@ export default function AdminSettingsScreen() {
         .eq('id', settings.id);
 
       if (error) throw error;
-      Alert.alert('✅', 'Paramètres sauvegardés');
+      Alert.alert('Succes', 'Parametres sauvegardes');
     } catch (err) {
       Alert.alert('Erreur', 'Impossible de sauvegarder');
     } finally {
@@ -85,7 +86,7 @@ export default function AdminSettingsScreen() {
       });
 
       if (res.error) throw res.error;
-      Alert.alert('✅', 'Seuils appliqués à tous les véhicules');
+      Alert.alert('Succes', 'Seuils appliques a tous les vehicules');
     } catch (err) {
       Alert.alert('Erreur', 'Impossible d\'appliquer les seuils');
     } finally {
@@ -99,79 +100,81 @@ export default function AdminSettingsScreen() {
   };
 
   if (loading) {
-    return <View style={styles.center}><ActivityIndicator size="large" color="#2E7D32" /></View>;
+    return <View style={styles.center}><ActivityIndicator size="large" color={colors.brand} /></View>;
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.title}>Paramètres</Text>
+      <Text style={styles.title}>Parametres</Text>
 
-      <Text style={styles.sectionTitle}>⚠️ Seuils d'alerte globaux</Text>
+      <Text style={styles.sectionTitle}>Seuils d'alerte globaux</Text>
 
       {settings && (
         <>
-          <View style={styles.field}>
-            <Text style={styles.label}>CT : alerter J-X avant expiration (jours)</Text>
-            <TextInput
-              style={styles.input}
-              value={settings.alert_inspection_days_before.toString()}
-              onChangeText={(t) => setSettings({ ...settings, alert_inspection_days_before: parseInt(t) || 0 })}
-              keyboardType="number-pad"
-            />
-          </View>
+          <View style={styles.card}>
+            <View style={styles.field}>
+              <Text style={styles.label}>CT : alerter J-X avant expiration (jours)</Text>
+              <TextInput
+                style={styles.input}
+                value={settings.alert_inspection_days_before.toString()}
+                onChangeText={(t) => setSettings({ ...settings, alert_inspection_days_before: parseInt(t) || 0 })}
+                keyboardType="number-pad"
+              />
+            </View>
 
-          <View style={styles.field}>
-            <Text style={styles.label}>Entretien : alerter J-X avant date (jours)</Text>
-            <TextInput
-              style={styles.input}
-              value={settings.alert_maintenance_days_before.toString()}
-              onChangeText={(t) => setSettings({ ...settings, alert_maintenance_days_before: parseInt(t) || 0 })}
-              keyboardType="number-pad"
-            />
-          </View>
+            <View style={styles.field}>
+              <Text style={styles.label}>Entretien : alerter J-X avant date (jours)</Text>
+              <TextInput
+                style={styles.input}
+                value={settings.alert_maintenance_days_before.toString()}
+                onChangeText={(t) => setSettings({ ...settings, alert_maintenance_days_before: parseInt(t) || 0 })}
+                keyboardType="number-pad"
+              />
+            </View>
 
-          <View style={styles.field}>
-            <Text style={styles.label}>Entretien : alerter KM-X avant kilométrage</Text>
-            <TextInput
-              style={styles.input}
-              value={settings.alert_maintenance_km_before.toString()}
-              onChangeText={(t) => setSettings({ ...settings, alert_maintenance_km_before: parseInt(t) || 0 })}
-              keyboardType="number-pad"
-            />
-          </View>
+            <View style={styles.field}>
+              <Text style={styles.label}>Entretien : alerter KM-X avant kilometrage</Text>
+              <TextInput
+                style={styles.input}
+                value={settings.alert_maintenance_km_before.toString()}
+                onChangeText={(t) => setSettings({ ...settings, alert_maintenance_km_before: parseInt(t) || 0 })}
+                keyboardType="number-pad"
+              />
+            </View>
 
-          <View style={styles.field}>
-            <Text style={styles.label}>Consommation : alerter si &gt; X L/100km</Text>
-            <TextInput
-              style={styles.input}
-              value={settings.fuel_alert_threshold_l100.toString()}
-              onChangeText={(t) => setSettings({ ...settings, fuel_alert_threshold_l100: parseFloat(t) || 0 })}
-              keyboardType="decimal-pad"
-            />
-          </View>
+            <View style={styles.field}>
+              <Text style={styles.label}>Consommation : alerter si &gt; X L/100km</Text>
+              <TextInput
+                style={styles.input}
+                value={settings.fuel_alert_threshold_l100.toString()}
+                onChangeText={(t) => setSettings({ ...settings, fuel_alert_threshold_l100: parseFloat(t) || 0 })}
+                keyboardType="decimal-pad"
+              />
+            </View>
 
-          <View style={styles.field}>
-            <Text style={styles.label}>Sans plein : alerter après X jours</Text>
-            <TextInput
-              style={styles.input}
-              value={settings.no_fill_alert_days.toString()}
-              onChangeText={(t) => setSettings({ ...settings, no_fill_alert_days: parseInt(t) || 0 })}
-              keyboardType="number-pad"
-            />
+            <View style={styles.fieldLast}>
+              <Text style={styles.label}>Sans plein : alerter apres X jours</Text>
+              <TextInput
+                style={styles.input}
+                value={settings.no_fill_alert_days.toString()}
+                onChangeText={(t) => setSettings({ ...settings, no_fill_alert_days: parseInt(t) || 0 })}
+                keyboardType="number-pad"
+              />
+            </View>
           </View>
 
           <TouchableOpacity style={[styles.saveButton, saving && { opacity: 0.5 }]} onPress={saveSettings} disabled={saving}>
-            {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveText}>Sauvegarder les seuils</Text>}
+            {saving ? <ActivityIndicator color={colors.inkOnDark} /> : <Text style={styles.saveText}>Sauvegarder les seuils</Text>}
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.applyButton, applying && { opacity: 0.5 }]} onPress={applyToAllVehicles} disabled={applying}>
-            {applying ? <ActivityIndicator color="#fff" /> : <Text style={styles.applyText}>Appliquer à tous les véhicules</Text>}
+            {applying ? <ActivityIndicator color={colors.inkOnDark} /> : <Text style={styles.applyText}>Appliquer a tous les vehicules</Text>}
           </TouchableOpacity>
         </>
       )}
 
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-        <Text style={styles.logoutText}>Se déconnecter</Text>
+        <Text style={styles.logoutText}>Se deconnecter</Text>
       </TouchableOpacity>
 
       <Text style={styles.version}>Flot v1.0.0</Text>
@@ -180,19 +183,56 @@ export default function AdminSettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  content: { padding: 16, paddingTop: 50, paddingBottom: 40 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 24, fontWeight: '800', color: '#2E7D32', marginBottom: 16 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#333', marginBottom: 12, marginTop: 8 },
-  field: { marginBottom: 14 },
-  label: { fontSize: 13, fontWeight: '600', color: '#555', marginBottom: 4 },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15, color: '#333' },
-  saveButton: { backgroundColor: '#2E7D32', paddingVertical: 14, borderRadius: 10, alignItems: 'center', marginTop: 8 },
-  saveText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  applyButton: { backgroundColor: '#FF9800', paddingVertical: 14, borderRadius: 10, alignItems: 'center', marginTop: 12 },
-  applyText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  logoutButton: { backgroundColor: '#D32F2F', paddingVertical: 14, borderRadius: 10, alignItems: 'center', marginTop: 32 },
-  logoutText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  version: { textAlign: 'center', color: '#999', marginTop: 16, fontSize: 13 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.lg, paddingTop: 50, paddingBottom: 40 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+  title: { ...typography.h1, color: colors.ink, marginBottom: spacing.lg },
+  sectionTitle: { ...typography.h3, color: colors.ink, marginBottom: spacing.md, marginTop: spacing.sm },
+  card: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    ...shadows.card,
+  },
+  field: { marginBottom: spacing.lg },
+  fieldLast: { marginBottom: 0 },
+  label: { ...typography.caption, color: colors.inkSecondary, marginBottom: spacing.xs },
+  input: {
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.borderInput,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    ...typography.body,
+    color: colors.ink,
+  },
+  saveButton: {
+    backgroundColor: colors.brand,
+    paddingVertical: spacing.lg,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    marginTop: spacing.lg,
+    ...shadows.card,
+  },
+  saveText: { color: colors.inkOnDark, fontSize: 16, fontWeight: '700' },
+  applyButton: {
+    backgroundColor: colors.warning,
+    paddingVertical: spacing.lg,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    marginTop: spacing.md,
+    ...shadows.card,
+  },
+  applyText: { color: colors.inkOnDark, fontSize: 16, fontWeight: '700' },
+  logoutButton: {
+    backgroundColor: colors.error,
+    paddingVertical: spacing.lg,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    marginTop: spacing.xxxl,
+    ...shadows.card,
+  },
+  logoutText: { color: colors.inkOnDark, fontSize: 16, fontWeight: '700' },
+  version: { textAlign: 'center', color: colors.inkMuted, marginTop: spacing.lg, ...typography.caption },
 });

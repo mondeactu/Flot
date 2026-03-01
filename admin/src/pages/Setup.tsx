@@ -44,9 +44,9 @@ export default function Setup() {
       const data = res.data as Record<string, unknown>;
       if (data.error) throw new Error(data.error as string);
 
-      navigate('/login', { replace: true, state: { message: 'Compte administrateur créé avec succès' } });
+      navigate('/login', { replace: true, state: { message: 'Compte administrateur cree avec succes' } });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de la création du compte');
+      setError(err instanceof Error ? err.message : 'Erreur lors de la creation du compte');
     } finally {
       setLoading(false);
     }
@@ -54,71 +54,71 @@ export default function Setup() {
 
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-gray-500">Vérification...</p>
+      <div className="min-h-screen flex items-center justify-center bg-surface">
+        <p className="text-ink-muted">Verification...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-surface p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-3"><Truck size={32} className="text-green-700" /></div>
-          <h1 className="text-3xl font-extrabold text-green-700">Flot</h1>
-          <p className="text-gray-500 mt-2">Configuration initiale</p>
+          <div className="w-16 h-16 bg-brand-50 rounded-2xl flex items-center justify-center mx-auto mb-3"><Truck size={32} className="text-brand-700" /></div>
+          <h1 className="text-3xl font-extrabold text-brand-700">Flot</h1>
+          <p className="text-ink-muted mt-2">Configuration initiale</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
-          <h2 className="text-lg font-bold text-gray-800">Créer le compte administrateur</h2>
+        <form onSubmit={handleSubmit} className="card p-6 space-y-4">
+          <h2 className="text-lg font-bold text-ink">Creer le compte administrateur</h2>
 
           {error && (
-            <div className="bg-red-50 text-red-700 text-sm p-3 rounded-lg border-l-4 border-red-500">{error}</div>
+            <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border-l-4 border-red-500">{error}</div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nom complet</label>
+            <label className="block text-sm font-medium text-ink mb-1">Nom complet</label>
             <input
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="input-field"
               placeholder="Jean Dupont"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-ink mb-1">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="input-field"
               placeholder="admin@saveursetvie.fr"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+            <label className="block text-sm font-medium text-ink mb-1">Mot de passe</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={8}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="Minimum 8 caractères"
+              className="input-field"
+              placeholder="Minimum 8 caracteres"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-700 text-white py-3 rounded-lg font-bold hover:bg-green-800 disabled:opacity-50 transition-colors"
+            className="btn-primary w-full py-3"
           >
-            {loading ? 'Création en cours...' : 'Créer le compte'}
+            {loading ? 'Creation en cours...' : 'Creer le compte'}
           </button>
         </form>
       </div>

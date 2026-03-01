@@ -9,7 +9,9 @@ import {
   ScrollView,
   Keyboard,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import type { OCRResult } from '../lib/ocr';
+import { colors, spacing, radius, typography, shadows } from '../constants/theme';
 
 interface OCRFormProps {
   ocrResult: OCRResult;
@@ -56,12 +58,12 @@ export default function OCRForm({ ocrResult, previousKm, onSubmit, loading }: OC
     }
 
     if (isNaN(parsedKM) || parsedKM <= 0) {
-      setError('Le kilométrage est obligatoire');
+      setError('Le kilometrage est obligatoire');
       return;
     }
 
     if (previousKm !== null && parsedKM <= previousKm) {
-      setError(`Kilométrage inférieur au dernier relevé (${previousKm.toLocaleString('fr-FR')} km)`);
+      setError(`Kilometrage inferieur au dernier releve (${previousKm.toLocaleString('fr-FR')} km)`);
       return;
     }
 
@@ -78,7 +80,7 @@ export default function OCRForm({ ocrResult, previousKm, onSubmit, loading }: OC
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-      <Text style={styles.title}>Vérification du ticket</Text>
+      <Text style={styles.title}>Verification du ticket</Text>
 
       {error && (
         <View style={styles.errorBanner}>
@@ -105,71 +107,77 @@ export default function OCRForm({ ocrResult, previousKm, onSubmit, loading }: OC
         </View>
       </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>
-          Prix HT (EUR) {isFieldLowConfidence('priceHT') && '⚠️'}
-        </Text>
-        <TextInput
-          style={[styles.input, isFieldLowConfidence('priceHT') && styles.inputWarning]}
-          value={priceHT}
-          onChangeText={setPriceHT}
-          keyboardType="decimal-pad"
-          placeholder="0.00"
-          returnKeyType="done"
-          onSubmitEditing={() => Keyboard.dismiss()}
-          accessibilityLabel="Prix hors taxes"
-        />
-      </View>
+      <View style={styles.card}>
+        <View style={styles.field}>
+          <Text style={styles.label}>
+            Prix HT (EUR) {isFieldLowConfidence('priceHT') && <Feather name="alert-triangle" size={14} color={colors.warning} />}
+          </Text>
+          <TextInput
+            style={[styles.input, isFieldLowConfidence('priceHT') && styles.inputWarning]}
+            value={priceHT}
+            onChangeText={setPriceHT}
+            keyboardType="decimal-pad"
+            placeholder="0.00"
+            placeholderTextColor={colors.inkFaint}
+            returnKeyType="done"
+            onSubmitEditing={() => Keyboard.dismiss()}
+            accessibilityLabel="Prix hors taxes"
+          />
+        </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>
-          Prix TTC (EUR) {isFieldLowConfidence('priceTTC') && '⚠️'}
-        </Text>
-        <TextInput
-          style={[styles.input, isFieldLowConfidence('priceTTC') && styles.inputWarning]}
-          value={priceTTC}
-          onChangeText={setPriceTTC}
-          keyboardType="decimal-pad"
-          placeholder="0.00"
-          returnKeyType="done"
-          onSubmitEditing={() => Keyboard.dismiss()}
-          accessibilityLabel="Prix toutes taxes comprises"
-        />
-      </View>
+        <View style={styles.field}>
+          <Text style={styles.label}>
+            Prix TTC (EUR) {isFieldLowConfidence('priceTTC') && <Feather name="alert-triangle" size={14} color={colors.warning} />}
+          </Text>
+          <TextInput
+            style={[styles.input, isFieldLowConfidence('priceTTC') && styles.inputWarning]}
+            value={priceTTC}
+            onChangeText={setPriceTTC}
+            keyboardType="decimal-pad"
+            placeholder="0.00"
+            placeholderTextColor={colors.inkFaint}
+            returnKeyType="done"
+            onSubmitEditing={() => Keyboard.dismiss()}
+            accessibilityLabel="Prix toutes taxes comprises"
+          />
+        </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>
-          Litres {isFieldLowConfidence('liters') && '⚠️'}
-        </Text>
-        <TextInput
-          style={[styles.input, isFieldLowConfidence('liters') && styles.inputWarning]}
-          value={liters}
-          onChangeText={setLiters}
-          keyboardType="decimal-pad"
-          placeholder="0.00"
-          returnKeyType="done"
-          onSubmitEditing={() => Keyboard.dismiss()}
-          accessibilityLabel="Volume en litres"
-        />
-      </View>
+        <View style={styles.field}>
+          <Text style={styles.label}>
+            Litres {isFieldLowConfidence('liters') && <Feather name="alert-triangle" size={14} color={colors.warning} />}
+          </Text>
+          <TextInput
+            style={[styles.input, isFieldLowConfidence('liters') && styles.inputWarning]}
+            value={liters}
+            onChangeText={setLiters}
+            keyboardType="decimal-pad"
+            placeholder="0.00"
+            placeholderTextColor={colors.inkFaint}
+            returnKeyType="done"
+            onSubmitEditing={() => Keyboard.dismiss()}
+            accessibilityLabel="Volume en litres"
+          />
+        </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>
-          Kilométrage {isFieldLowConfidence('km') && '⚠️'}
-        </Text>
-        <TextInput
-          style={[styles.input, isFieldLowConfidence('km') && styles.inputWarning]}
-          value={km}
-          onChangeText={setKm}
-          keyboardType="number-pad"
-          placeholder="Ex: 125430"
-          returnKeyType="done"
-          onSubmitEditing={() => Keyboard.dismiss()}
-          accessibilityLabel="Kilométrage au compteur"
-        />
-        {previousKm !== null && (
-          <Text style={styles.hint}>Dernier relevé : {previousKm.toLocaleString('fr-FR')} km</Text>
-        )}
+        <View style={styles.fieldLast}>
+          <Text style={styles.label}>
+            Kilometrage {isFieldLowConfidence('km') && <Feather name="alert-triangle" size={14} color={colors.warning} />}
+          </Text>
+          <TextInput
+            style={[styles.input, isFieldLowConfidence('km') && styles.inputWarning]}
+            value={km}
+            onChangeText={setKm}
+            keyboardType="number-pad"
+            placeholder="Ex: 125430"
+            placeholderTextColor={colors.inkFaint}
+            returnKeyType="done"
+            onSubmitEditing={() => Keyboard.dismiss()}
+            accessibilityLabel="Kilometrage au compteur"
+          />
+          {previousKm !== null && (
+            <Text style={styles.hint}>Dernier releve : {previousKm.toLocaleString('fr-FR')} km</Text>
+          )}
+        </View>
       </View>
 
       <TouchableOpacity
@@ -179,7 +187,7 @@ export default function OCRForm({ ocrResult, previousKm, onSubmit, loading }: OC
         accessibilityLabel="Valider le plein"
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={colors.inkOnDark} />
         ) : (
           <Text style={styles.submitText}>Valider le plein</Text>
         )}
@@ -189,22 +197,62 @@ export default function OCRForm({ ocrResult, previousKm, onSubmit, loading }: OC
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  content: { padding: 16 },
-  title: { fontSize: 20, fontWeight: '700', color: '#333', marginBottom: 16 },
-  errorBanner: { backgroundColor: '#FFEBEE', padding: 12, borderRadius: 8, marginBottom: 12, borderLeftWidth: 4, borderLeftColor: '#D32F2F' },
-  errorText: { color: '#D32F2F', fontSize: 14, fontWeight: '500' },
-  field: { marginBottom: 16 },
-  label: { fontSize: 14, fontWeight: '600', color: '#555', marginBottom: 6 },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, paddingHorizontal: 14, paddingVertical: 12, fontSize: 16, color: '#333' },
-  inputWarning: { borderColor: '#FF9800', borderWidth: 2, backgroundColor: '#FFF8E1' },
-  hint: { fontSize: 12, color: '#888', marginTop: 4 },
-  fuelToggle: { flexDirection: 'row', backgroundColor: '#f0f0f0', borderRadius: 10, padding: 3 },
-  fuelBtn: { flex: 1, paddingVertical: 10, borderRadius: 8, alignItems: 'center' },
-  fuelBtnActive: { backgroundColor: '#2E7D32' },
-  fuelBtnText: { fontSize: 15, fontWeight: '600', color: '#888' },
-  fuelBtnTextActive: { color: '#fff' },
-  submitButton: { backgroundColor: '#2E7D32', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginTop: 8 },
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.lg },
+  title: { ...typography.h2, color: colors.ink, marginBottom: spacing.lg },
+  errorBanner: {
+    backgroundColor: colors.errorBg,
+    padding: spacing.md,
+    borderRadius: radius.sm,
+    marginBottom: spacing.md,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.error,
+  },
+  errorText: { color: colors.error, fontSize: 14, fontWeight: '500' },
+  card: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    ...shadows.card,
+  },
+  field: { marginBottom: spacing.lg },
+  fieldLast: { marginBottom: 0 },
+  label: { ...typography.bodyMedium, color: colors.inkSecondary, marginBottom: spacing.sm },
+  input: {
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.borderInput,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    fontSize: 16,
+    color: colors.ink,
+  },
+  inputWarning: { borderColor: colors.warning, borderWidth: 2, backgroundColor: colors.warningBg },
+  hint: { ...typography.caption, color: colors.inkSecondary, marginTop: spacing.xs },
+  fuelToggle: {
+    flexDirection: 'row',
+    backgroundColor: colors.border,
+    borderRadius: radius.md,
+    padding: 3,
+  },
+  fuelBtn: {
+    flex: 1,
+    paddingVertical: spacing.md,
+    borderRadius: radius.sm,
+    alignItems: 'center',
+  },
+  fuelBtnActive: { backgroundColor: colors.brand },
+  fuelBtnText: { ...typography.bodySemibold, color: colors.inkMuted },
+  fuelBtnTextActive: { color: colors.inkOnDark },
+  submitButton: {
+    backgroundColor: colors.brand,
+    paddingVertical: spacing.lg,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    marginTop: spacing.lg,
+    ...shadows.card,
+  },
   submitDisabled: { opacity: 0.5 },
-  submitText: { color: '#fff', fontSize: 18, fontWeight: '700' },
+  submitText: { color: colors.inkOnDark, fontSize: 18, fontWeight: '700' },
 });

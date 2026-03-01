@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { supabase } from '../../lib/supabase';
+import { colors, spacing, radius, typography, shadows } from '../../constants/theme';
 
 interface DriverProfile {
   id: string;
@@ -73,7 +74,7 @@ export default function DriverDetailScreen() {
         .update({ full_name: driver.full_name, phone: driver.phone })
         .eq('id', driver.id);
       if (error) throw error;
-      Alert.alert('✅', 'Conducteur mis à jour');
+      Alert.alert('Succes', 'Conducteur mis a jour');
     } catch {
       Alert.alert('Erreur', 'Impossible de sauvegarder');
     } finally {
@@ -82,25 +83,27 @@ export default function DriverDetailScreen() {
   };
 
   if (loading || !driver) {
-    return <View style={styles.center}><ActivityIndicator size="large" color="#2E7D32" /></View>;
+    return <View style={styles.center}><ActivityIndicator size="large" color={colors.brand} /></View>;
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.title}>{driver.full_name}</Text>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Nom complet</Text>
-        <TextInput style={styles.input} value={driver.full_name} onChangeText={(t) => setDriver({ ...driver, full_name: t })} />
-      </View>
+      <View style={styles.card}>
+        <View style={styles.field}>
+          <Text style={styles.label}>Nom complet</Text>
+          <TextInput style={styles.input} value={driver.full_name} onChangeText={(t) => setDriver({ ...driver, full_name: t })} />
+        </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Téléphone</Text>
-        <TextInput style={styles.input} value={driver.phone ?? ''} onChangeText={(t) => setDriver({ ...driver, phone: t })} keyboardType="phone-pad" />
+        <View style={styles.fieldLast}>
+          <Text style={styles.label}>Telephone</Text>
+          <TextInput style={styles.input} value={driver.phone ?? ''} onChangeText={(t) => setDriver({ ...driver, phone: t })} keyboardType="phone-pad" />
+        </View>
       </View>
 
       <TouchableOpacity style={[styles.saveButton, saving && { opacity: 0.5 }]} onPress={saveDriver} disabled={saving}>
-        {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveText}>Enregistrer</Text>}
+        {saving ? <ActivityIndicator color={colors.inkOnDark} /> : <Text style={styles.saveText}>Enregistrer</Text>}
       </TouchableOpacity>
 
       <Text style={styles.sectionTitle}>Derniers pleins</Text>
@@ -110,11 +113,11 @@ export default function DriverDetailScreen() {
         fills.map((f) => (
           <View key={f.id} style={styles.fillCard}>
             <View style={styles.fillHeader}>
-              <Text style={styles.fillPrice}>{Number(f.price_ttc).toFixed(2)} €</Text>
+              <Text style={styles.fillPrice}>{Number(f.price_ttc).toFixed(2)} EUR</Text>
               <Text style={styles.fillDate}>{new Date(f.filled_at).toLocaleDateString('fr-FR')}</Text>
             </View>
             <Text style={styles.fillDetail}>
-              {f.km_at_fill.toLocaleString('fr-FR')} km — {(f.vehicle as unknown as { plate: string })?.plate ?? '—'}
+              {f.km_at_fill.toLocaleString('fr-FR')} km -- {(f.vehicle as unknown as { plate: string })?.plate ?? '--'}
             </Text>
           </View>
         ))
@@ -124,20 +127,52 @@ export default function DriverDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  content: { padding: 16, paddingTop: 50, paddingBottom: 40 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  title: { fontSize: 24, fontWeight: '800', color: '#2E7D32', marginBottom: 16 },
-  field: { marginBottom: 14 },
-  label: { fontSize: 13, fontWeight: '600', color: '#555', marginBottom: 4 },
-  input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10, fontSize: 15, color: '#333' },
-  saveButton: { backgroundColor: '#2E7D32', paddingVertical: 14, borderRadius: 10, alignItems: 'center', marginTop: 8, marginBottom: 24 },
-  saveText: { color: '#fff', fontSize: 16, fontWeight: '700' },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#333', marginBottom: 12 },
-  emptyText: { fontSize: 15, color: '#888', textAlign: 'center' },
-  fillCard: { backgroundColor: '#fff', padding: 12, borderRadius: 8, marginBottom: 8, borderLeftWidth: 3, borderLeftColor: '#2E7D32' },
+  container: { flex: 1, backgroundColor: colors.bg },
+  content: { padding: spacing.lg, paddingTop: 50, paddingBottom: 40 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.bg },
+  title: { ...typography.h1, color: colors.ink, marginBottom: spacing.lg },
+  card: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    ...shadows.card,
+  },
+  field: { marginBottom: spacing.lg },
+  fieldLast: { marginBottom: 0 },
+  label: { ...typography.caption, color: colors.inkSecondary, marginBottom: spacing.xs },
+  input: {
+    backgroundColor: colors.bg,
+    borderWidth: 1,
+    borderColor: colors.borderInput,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    ...typography.body,
+    color: colors.ink,
+  },
+  saveButton: {
+    backgroundColor: colors.brand,
+    paddingVertical: spacing.lg,
+    borderRadius: radius.md,
+    alignItems: 'center',
+    marginTop: spacing.lg,
+    marginBottom: spacing.xxl,
+    ...shadows.card,
+  },
+  saveText: { color: colors.inkOnDark, fontSize: 16, fontWeight: '700' },
+  sectionTitle: { ...typography.h3, color: colors.ink, marginBottom: spacing.md },
+  emptyText: { ...typography.body, color: colors.inkMuted, textAlign: 'center' },
+  fillCard: {
+    backgroundColor: colors.bgCard,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    marginBottom: spacing.sm,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.brand,
+    ...shadows.card,
+  },
   fillHeader: { flexDirection: 'row', justifyContent: 'space-between' },
-  fillPrice: { fontSize: 16, fontWeight: '700', color: '#333' },
-  fillDate: { fontSize: 13, color: '#888' },
-  fillDetail: { fontSize: 13, color: '#666', marginTop: 4 },
+  fillPrice: { fontSize: 16, fontWeight: '700', color: colors.ink },
+  fillDate: { ...typography.caption, color: colors.inkSecondary },
+  fillDetail: { ...typography.caption, color: colors.inkSecondary, marginTop: spacing.xs },
 });

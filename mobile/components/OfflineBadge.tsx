@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { getQueueCount } from '../lib/offline-queue';
+import { colors, spacing, radius } from '../constants/theme';
 
 export default function OfflineBadge() {
   const [count, setCount] = useState(0);
@@ -19,21 +21,29 @@ export default function OfflineBadge() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>📤 {count} en attente</Text>
+      <View style={styles.row}>
+        <Feather name="upload" size={12} color={colors.inkOnDark} />
+        <Text style={styles.text}>{count} en attente</Text>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#FF9800',
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 16,
-    marginLeft: 8,
+    backgroundColor: colors.warning,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.full,
+    marginLeft: spacing.sm,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
   },
   text: {
-    color: '#fff',
+    color: colors.inkOnDark,
     fontSize: 12,
     fontWeight: '600',
   },

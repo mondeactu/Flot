@@ -70,14 +70,14 @@ export default function TabPerformance({ vehicleId }: { vehicleId: string }) {
     fetchPerformance();
   }, [vehicleId]);
 
-  if (loading) return <p className="text-gray-500">Chargement des statistiques...</p>;
+  if (loading) return <p className="text-ink-muted">Chargement des statistiques...</p>;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in">
       {/* Consumption chart */}
       <div>
-        <h4 className="text-sm font-bold text-gray-700 mb-2">
-          Consommation (L/100km) — Moyenne : {avgConsumption} L/100km
+        <h4 className="text-sm font-bold text-ink mb-2">
+          Consommation (L/100km) -- Moyenne : {avgConsumption} L/100km
         </h4>
         {fuelData.length > 0 ? (
           <ResponsiveContainer width="100%" height={250}>
@@ -90,19 +90,19 @@ export default function TabPerformance({ vehicleId }: { vehicleId: string }) {
             </LineChart>
           </ResponsiveContainer>
         ) : (
-          <p className="text-gray-400 text-sm">Pas assez de données</p>
+          <p className="text-ink-faint text-sm">Pas assez de donnees</p>
         )}
       </div>
 
       {/* Monthly costs chart */}
       <div>
-        <h4 className="text-sm font-bold text-gray-700 mb-2">Coûts mensuels (12 mois)</h4>
+        <h4 className="text-sm font-bold text-ink mb-2">Couts mensuels (12 mois)</h4>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={costData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="month" tick={{ fontSize: 11 }} />
             <YAxis tick={{ fontSize: 11 }} />
-            <Tooltip formatter={(v: number) => `${v.toFixed(2)} €`} />
+            <Tooltip formatter={(v: number) => `${v.toFixed(2)} EUR`} />
             <Bar dataKey="fuel" stackId="a" fill="#2E7D32" name="Carburant" />
             <Bar dataKey="cleaning" stackId="a" fill="#42A5F5" name="Nettoyage" />
             <Bar dataKey="maintenance" stackId="a" fill="#FF9800" name="Entretien" />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Truck } from 'lucide-react';
+import { Truck, Download } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -15,9 +15,7 @@ export default function PWAInstallPrompt() {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
-
     window.addEventListener('beforeinstallprompt', handler);
-
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
@@ -33,24 +31,20 @@ export default function PWAInstallPrompt() {
   };
 
   return (
-    <div className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-white border border-gray-200 rounded-xl shadow-lg p-4 z-50 flex items-center gap-3">
-      <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0"><Truck size={20} className="text-green-700" /></div>
-      <div className="flex-1">
-        <p className="text-sm font-bold text-gray-800">Installer Flot Admin</p>
-        <p className="text-xs text-gray-500">Acces rapide depuis l'ecran d'accueil</p>
+    <div className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-80 bg-white rounded-2xl shadow-elevated p-4 z-50 flex items-center gap-3 border border-border-light animate-fade-in">
+      <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center flex-shrink-0">
+        <Truck size={20} className="text-brand-700" />
       </div>
-      <div className="flex gap-2">
-        <button
-          onClick={() => setDismissed(true)}
-          className="text-xs text-gray-400 hover:text-gray-600"
-        >
+      <div className="flex-1">
+        <p className="text-sm font-bold text-ink">Installer Flot Admin</p>
+        <p className="text-[11px] text-ink-muted">Acces rapide depuis l'ecran d'accueil</p>
+      </div>
+      <div className="flex gap-2 flex-shrink-0">
+        <button onClick={() => setDismissed(true)} className="text-xs text-ink-muted hover:text-ink transition-colors">
           Plus tard
         </button>
-        <button
-          onClick={handleInstall}
-          className="bg-green-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-green-800"
-        >
-          Installer
+        <button onClick={handleInstall} className="btn-primary text-xs py-1.5 px-3">
+          <Download size={12} /> OK
         </button>
       </div>
     </div>

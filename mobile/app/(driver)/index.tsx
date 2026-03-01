@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Keyboard,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { useAuthStore } from '../../stores/auth.store';
 import { supabase } from '../../lib/supabase';
 import { recognizeReceipt, type OCRResult } from '../../lib/ocr';
@@ -16,6 +17,7 @@ import OCRForm from '../../components/OCRForm';
 import { addToQueue, savePhotoLocally } from '../../lib/offline-queue';
 import { sendLocalNotification } from '../../lib/notifications';
 import NetInfo from '@react-native-community/netinfo';
+import { colors, spacing, radius, typography, shadows } from '../../constants/theme';
 
 type Step = 'idle' | 'camera' | 'ocr' | 'success';
 
@@ -154,7 +156,9 @@ export default function FuelScreen() {
   if (step === 'success') {
     return (
       <View style={styles.successContainer}>
-        <Text style={styles.successEmoji}>✅</Text>
+        <View style={styles.successIcon}>
+          <Feather name="check-circle" size={64} color={colors.brand} />
+        </View>
         <Text style={styles.successText}>Plein enregistre !</Text>
       </View>
     );
@@ -163,7 +167,7 @@ export default function FuelScreen() {
   if (ocrLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#2E7D32" />
+        <ActivityIndicator size="large" color={colors.brand} />
         <Text style={styles.loadingText}>Lecture du ticket...</Text>
       </View>
     );
@@ -173,7 +177,9 @@ export default function FuelScreen() {
   if (ocrError) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorEmoji}>❌</Text>
+        <View style={styles.errorIcon}>
+          <Feather name="x-circle" size={64} color={colors.error} />
+        </View>
         <Text style={styles.errorTitle}>Impossible de lire le ticket</Text>
         <Text style={styles.errorSubtitle}>
           La photo n'est pas assez claire ou le texte est illisible
@@ -237,7 +243,9 @@ export default function FuelScreen() {
   // Idle — show scan button
   return (
     <View style={styles.idleContainer}>
-      <Text style={styles.idleEmoji}>⛽</Text>
+      <View style={styles.idleIcon}>
+        <Feather name="droplet" size={48} color={colors.brand} />
+      </View>
       <Text style={styles.idleTitle}>Enregistrer un plein</Text>
       <Text style={styles.idleSubtitle}>
         Prenez en photo votre ticket de caisse
@@ -247,32 +255,130 @@ export default function FuelScreen() {
         onPress={() => setStep('camera')}
         accessibilityLabel="Scanner un recu"
       >
-        <Text style={styles.scanButtonText}>📷  Scanner un recu</Text>
+        <View style={styles.scanButtonRow}>
+          <Feather name="camera" size={22} color={colors.inkOnDark} />
+          <Text style={styles.scanButtonText}>Scanner un recu</Text>
+        </View>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' },
-  loadingText: { marginTop: 16, fontSize: 16, color: '#555' },
-  successContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#E8F5E9' },
-  successEmoji: { fontSize: 64, marginBottom: 16 },
-  successText: { fontSize: 22, fontWeight: '700', color: '#2E7D32' },
-  idleContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5', padding: 32 },
-  idleEmoji: { fontSize: 72, marginBottom: 16 },
-  idleTitle: { fontSize: 24, fontWeight: '800', color: '#333', marginBottom: 8 },
-  idleSubtitle: { fontSize: 16, color: '#777', textAlign: 'center', marginBottom: 32 },
-  scanButton: { backgroundColor: '#2E7D32', paddingHorizontal: 32, paddingVertical: 18, borderRadius: 14 },
-  scanButtonText: { color: '#fff', fontSize: 20, fontWeight: '700' },
+  container: {
+    flex: 1,
+    backgroundColor: colors.bg,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.bg,
+  },
+  loadingText: {
+    marginTop: spacing.lg,
+    ...typography.body,
+    color: colors.inkSecondary,
+  },
+  successContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.successBg,
+  },
+  successIcon: {
+    marginBottom: spacing.lg,
+  },
+  successText: {
+    ...typography.h2,
+    color: colors.brand,
+  },
+  idleContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.bg,
+    padding: spacing.xxxl,
+  },
+  idleIcon: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: colors.brandLight,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+    marginBottom: spacing.lg,
+  },
+  idleTitle: {
+    ...typography.h1,
+    color: colors.ink,
+    marginBottom: spacing.sm,
+  },
+  idleSubtitle: {
+    ...typography.body,
+    color: colors.inkSecondary,
+    textAlign: 'center',
+    marginBottom: spacing.xxxl,
+  },
+  scanButton: {
+    backgroundColor: colors.brand,
+    paddingHorizontal: spacing.xxxl,
+    paddingVertical: 18,
+    borderRadius: radius.lg,
+    ...shadows.elevated,
+  },
+  scanButtonText: {
+    color: colors.inkOnDark,
+    fontSize: 20,
+    fontWeight: '700',
+  },
   // Error screen
-  errorContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFF3F3', padding: 32 },
-  errorEmoji: { fontSize: 64, marginBottom: 16 },
-  errorTitle: { fontSize: 20, fontWeight: '700', color: '#D32F2F', marginBottom: 8 },
-  errorSubtitle: { fontSize: 14, color: '#777', textAlign: 'center', marginBottom: 32 },
-  retryButton: { backgroundColor: '#2E7D32', paddingHorizontal: 32, paddingVertical: 16, borderRadius: 14, marginBottom: 12 },
-  retryButtonText: { color: '#fff', fontSize: 18, fontWeight: '700' },
-  manualButton: { backgroundColor: '#757575', paddingHorizontal: 32, paddingVertical: 14, borderRadius: 14 },
-  manualButtonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.errorBg,
+    padding: spacing.xxxl,
+  },
+  errorIcon: {
+    marginBottom: spacing.lg,
+  },
+  scanButtonRow: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    gap: 10,
+  },
+  errorTitle: {
+    ...typography.h3,
+    color: colors.error,
+    marginBottom: spacing.sm,
+  },
+  errorSubtitle: {
+    ...typography.caption,
+    color: colors.inkSecondary,
+    textAlign: 'center',
+    marginBottom: spacing.xxxl,
+  },
+  retryButton: {
+    backgroundColor: colors.brand,
+    paddingHorizontal: spacing.xxxl,
+    paddingVertical: spacing.lg,
+    borderRadius: radius.lg,
+    marginBottom: spacing.md,
+    ...shadows.card,
+  },
+  retryButtonText: {
+    color: colors.inkOnDark,
+    ...typography.h3,
+  },
+  manualButton: {
+    backgroundColor: colors.inkSecondary,
+    paddingHorizontal: spacing.xxxl,
+    paddingVertical: 14,
+    borderRadius: radius.lg,
+  },
+  manualButtonText: {
+    color: colors.inkOnDark,
+    ...typography.bodySemibold,
+  },
 });
